@@ -40,7 +40,7 @@ export const TemperatureChart: FC<TemperatureChartProps> = ({ data, loading }) =
           <YAxis domain={['dataMin - 2', 'dataMax + 2']} tick={{ fontSize: 12 }} />
           <Tooltip 
             contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }}
-            formatter={(value) => `${value.toFixed(1)}°C`}
+            formatter={(value) => `${(typeof value === 'number' ? value : parseFloat(value as string)).toFixed(1)}°C`}
           />
           <Line 
             type="monotone" 

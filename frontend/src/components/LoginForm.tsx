@@ -1,5 +1,4 @@
 import { FC, useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
 
 interface LoginFormProps {
   onSuccess: () => void;

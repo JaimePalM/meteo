@@ -37,7 +37,7 @@ export const PrecipitationChart: FC<PrecipitationChartProps> = ({ data, loading 
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip 
             contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }}
-            formatter={(value) => `${value.toFixed(1)} mm`}
+            formatter={(value) => `${(typeof value === 'number' ? value : parseFloat(value as string)).toFixed(1)} mm`}
           />
           <Bar 
             dataKey="precipitation" 
