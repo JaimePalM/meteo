@@ -1,9 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { WeatherService } from '../services/weatherService';
+import { RiverService } from '../services/riverService';
 import authMiddleware from '../middleware/auth';
 
 const router = Router();
 const weatherService = new WeatherService();
+const riverService = new RiverService();
 
 // Protect all admin routes with auth middleware
 router.use((req, res, next) => {
@@ -107,6 +109,69 @@ router.delete('/weather/:id', async (req: Request, res: Response) => {
     res.json({ message: 'Weather record deleted successfully' });
   } catch (error) {
     console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── River Admin Routes ───────────────────────────────────────────────────────
+
+// GET /api/admin/river/history
+router.get('/river/history', async (req: Request, res: Response) => {
+  try {
+    const data = await riverService.getAllHistory();
+    res.json(Array.isArray(data) ? data : [data]);
+  } catch (error) {
+    console.error('[ADMIN-RIVER-GET] Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/admin/river
+router.post('/river', async (req: Request, res: Response) => {
+  try {
+    const { temperature, recorded_date } = req.body;
+    if (temperature === undefined || temperature === null || temperature === '' || !recorded_date) {
+      return res.status(400).json({ error: 'Missing required fields: temperature, recorded_date' });
+    }
+    const temp = parseFloat(temperature);
+    if (isNaN(temp)) {
+      return res.status(400).json({ error: 'Invalid temperature value' });
+    }
+    const result = await riverService.createRiverRecord({ temperature: temp, recorded_date });
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('[ADMIN-RIVER-POST] Error:', error);
+    res.status(500).json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
+// PUT /api/admin/river/:id
+router.put('/river/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { temperature, recorded_date } = req.body;
+    const updateData: { temperature?: number; recorded_date?: string } = {};
+    if (temperature !== undefined && temperature !== '') updateData.temperature = parseFloat(temperature);
+    if (recorded_date) updateData.recorded_date = recorded_date;
+
+    const result = await riverService.updateRiverRecord(parseInt(id), updateData);
+    if (!result) return res.status(404).json({ error: 'River record not found' });
+    res.json(result);
+  } catch (error) {
+    console.error('[ADMIN-RIVER-PUT] Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE /api/admin/river/:id
+router.delete('/river/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const success = await riverService.deleteRiverRecord(parseInt(id));
+    if (!success) return res.status(404).json({ error: 'River record not found' });
+    res.json({ message: 'River record deleted successfully' });
+  } catch (error) {
+    console.error('[ADMIN-RIVER-DELETE] Error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

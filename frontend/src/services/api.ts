@@ -66,10 +66,23 @@ export interface WeatherData {
   updated_at?: string;
 }
 
+export interface RiverData {
+  id: number;
+  temperature: number;
+  recorded_date: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 // Public endpoints
 export const weatherApi = {
   getCurrentWeather: () => api.get<WeatherData>('/weather/current'),
   getMonthlyHistory: () => api.get<WeatherData[]>('/weather/monthly'),
+};
+
+export const riverApi = {
+  getCurrent: () => api.get<RiverData>('/river/current'),
+  getMonthlyHistory: () => api.get<RiverData[]>('/river/monthly'),
 };
 
 // Auth endpoints
@@ -89,4 +102,11 @@ export const adminApi = {
   updateWeather: (id: number, data: Partial<WeatherData>) =>
     api.put<WeatherData>(`/admin/weather/${id}`, data),
   deleteWeather: (id: number) => api.delete(`/admin/weather/${id}`),
+
+  getRiverHistory: () => api.get<RiverData[]>('/admin/river/history'),
+  createRiver: (data: Omit<RiverData, 'id' | 'created_at' | 'updated_at'>) =>
+    api.post<RiverData>('/admin/river', data),
+  updateRiver: (id: number, data: Partial<RiverData>) =>
+    api.put<RiverData>(`/admin/river/${id}`, data),
+  deleteRiver: (id: number) => api.delete(`/admin/river/${id}`),
 };

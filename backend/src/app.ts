@@ -3,6 +3,7 @@ import cors from 'cors';
 import weatherRoutes from './routes/weather';
 import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
+import riverRoutes from './routes/river';
 
 const app: Express = express();
 
@@ -40,6 +41,7 @@ app.get('/health', (req: Request, res: Response) => {
 app.use('/api/weather', weatherRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/river', riverRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

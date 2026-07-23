@@ -30,11 +30,11 @@ export const PrecipitationChart: FC<PrecipitationChartProps> = ({ data, loading 
   return (
     <div className="chart-container precipitation-chart">
       <h3>🌧️ Precipitación (30 días)</h3>
-      <ResponsiveContainer width="100%" height={220}>
-        <BarChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+      <ResponsiveContainer width="100%" height={180}>
+        <BarChart data={chartData} margin={{ top: 5, right: 10, left: -15, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-          <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-          <YAxis tick={{ fontSize: 12 }} />
+          <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+          <YAxis tick={{ fontSize: 11 }} label={{ value: 'mm', angle: -90, position: 'insideLeft', offset: 5 }} />
           <Tooltip 
             contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }}
             formatter={(value) => `${(typeof value === 'number' ? value : parseFloat(value as string)).toFixed(1)} mm`}

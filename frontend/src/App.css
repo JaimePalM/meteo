@@ -2,8 +2,8 @@
 .public-display {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  background: linear-gradient(135deg, #FF8C00 0%, #FFB366 100%);
+  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,23 +12,23 @@
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 16px;
   width: 100%;
   max-width: 1920px;
-  height: calc(100vh - 40px);
+  height: calc(100vh - 32px);
 }
 
 .dashboard-left,
 .dashboard-right {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  overflow-y: auto;
+  gap: 12px;
+  overflow-y: hidden;
 }
 
 .dashboard-section {
   background: white;
-  padding: 20px;
+  padding: 16px;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   min-height: fit-content;
@@ -44,24 +44,24 @@
 /* Weather Card - Improved Design */
 .weather-card {
   background: white;
-  padding: 24px;
+  padding: 16px;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .weather-header {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .weather-card h2 {
-  font-size: 28px;
-  margin-bottom: 8px;
+  font-size: 22px;
+  margin-bottom: 4px;
   color: #1f2937;
   font-weight: 700;
 }
 
 .weather-date {
-  font-size: 12px;
+  font-size: 11px;
   color: #9CA3AF;
   text-transform: capitalize;
 }
@@ -69,16 +69,16 @@
 .weather-grid.modern {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 10px;
 }
 
 .weather-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  border-left: 4px solid #667eea;
+  gap: 10px;
+  padding: 12px;
+  background: linear-gradient(135deg, #FFF9F0 0%, #FFF5E1 100%);
+  border-left: 4px solid #FF8C00;
   border-radius: 8px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -89,8 +89,8 @@
 }
 
 .weather-item .item-emoji {
-  font-size: 32px;
-  min-width: 40px;
+  font-size: 28px;
+  min-width: 35px;
   text-align: center;
 }
 
@@ -98,11 +98,11 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .weather-item .label {
-  font-size: 11px;
+  font-size: 10px;
   color: #6b7280;
   font-weight: 600;
   text-transform: uppercase;
@@ -110,7 +110,7 @@
 }
 
 .weather-item .value {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   color: #1f2937;
 }
@@ -134,14 +134,16 @@
 /* Chart Containers */
 .chart-container {
   background: white;
-  padding: 16px;
+  padding: 12px;
   border-radius: 8px;
+  flex: 1;
+  min-height: 0;
 }
 
 .chart-container h3 {
-  font-size: 16px;
+  font-size: 14px;
   color: #1f2937;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   font-weight: 600;
 }
 
@@ -160,16 +162,17 @@
 /* Pressure Gauge */
 .pressure-gauge-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
-  padding: 20px;
+  padding: 16px;
 }
 
 .gauge-wrapper {
-  width: 100%;
-  max-width: 250px;
-  aspect-ratio: 1;
+  width: 120px;
+  height: 80px;
+  flex-shrink: 0;
 }
 
 .gauge-svg {
@@ -179,18 +182,18 @@
 .gauge-value {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 4px;
 }
 
 .pressure-number {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 700;
   color: #1f2937;
 }
 
 .pressure-unit {
-  font-size: 12px;
+  font-size: 13px;
   color: #6b7280;
   font-weight: 600;
 }
@@ -271,7 +274,7 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FF8C00 0%, #FFB366 100%);
 }
 
 .login-form {
@@ -311,14 +314,14 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #FF8C00;
+  box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
 }
 
 .login-form button {
   width: 100%;
   padding: 12px;
-  background: #667eea;
+  background: #FF8C00;
   color: white;
   border: none;
   border-radius: 4px;
@@ -329,7 +332,7 @@
 }
 
 .login-form button:hover {
-  background: #5568d3;
+  background: #E67E00;
 }
 
 .login-form button:disabled {
@@ -591,4 +594,189 @@
   .weather-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ─── Carousel fullscreen ─────────────────────────────────────────────────── */
+.carousel {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.carousel-container {
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-item {
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-item.active {
+  display: flex;
+  flex-direction: column;
+}
+
+.carousel-item.active > * {
+  flex: 1;
+  min-height: 0;
+}
+
+.carousel-indicators {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
+.carousel-indicators .indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: background 0.3s;
+  padding: 0;
+}
+
+.carousel-indicators .indicator.active {
+  background: white;
+}
+
+/* ─── River Display ───────────────────────────────────────────────────────── */
+.river-display {
+  background: linear-gradient(135deg, #1565C0 0%, #4A90D9 100%);
+}
+
+.river-display .dashboard-section {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.river-display .dashboard-section h3 {
+  color: white;
+}
+
+.river-display .chart-container {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* RiverCard */
+.river-display .weather-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: white;
+}
+
+.river-display .weather-card h2,
+.river-display .weather-card p {
+  color: white;
+}
+
+.river-main-temp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+  gap: 8px;
+}
+
+.river-temp-display {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.river-emoji {
+  font-size: 64px;
+  line-height: 1;
+}
+
+.river-temp-value {
+  font-size: 72px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.river-status {
+  font-size: 22px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.river-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 8px;
+}
+
+.river-info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.river-info-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.river-info-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+}
+
+/* ─── Admin Tabs ─────────────────────────────────────────────────────────── */
+.admin-tabs {
+  display: flex;
+  background: white;
+  border-bottom: 2px solid #e5e7eb;
+  padding: 0 24px;
+}
+
+.admin-tab {
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.admin-tab:hover {
+  color: #374151;
+}
+
+.admin-tab.active {
+  color: #1d4ed8;
+  border-bottom-color: #1d4ed8;
 }
