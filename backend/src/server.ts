@@ -1,17 +1,27 @@
 import app from './app';
 import pool from './models/database';
+import { initializeDatabase } from './utils/initializeDatabase';
 
 const PORT = process.env.API_PORT || 5000;
 
-// Test database connection
-pool.query('SELECT NOW()', (err: Error | null) => {
-  if (err) {
-    console.error('Error connecting to database:', err);
-  } else {
-    console.log('Database connected successfully');
-  }
-});
+// Initialize database and start server
+async function startServer() {
+  try {
+    // Test database connection
+    await pool.query('SELECT NOW()');
+    console.log('✅ Database connected successfully');
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+    // Initialize database schema and data
+    await initializeDatabase();
+
+    // Start listening
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
