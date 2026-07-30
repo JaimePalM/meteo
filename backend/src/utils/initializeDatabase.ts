@@ -39,26 +39,32 @@ export async function initializeDatabase(): Promise<void> {
       return;
     }
 
-    // Split the script into individual statements and execute them
-    const statements = sqlScript
-      .split(';')
-      .map(stmt => stmt.trim())
-      .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
+    // Parse SQL statements more carefully
+    const statements = parseSqlStatements(sqlScript);
 
     console.log(`📝 Found ${statements.length} SQL statements to execute`);
+
+    if (statements.length === 0) {
+      console.warn('⚠️  No valid SQL statements found, will use inline creation');
+      await createTablesInline();
+      return;
+    }
 
     for (let i = 0; i < statements.length; i++) {
       const statement = statements[i];
       try {
-        console.log(`  [${i + 1}/${statements.length}] Executing: ${statement.substring(0, 50)}...`);
+        const preview = statement.substring(0, 60).replace(/\n/g, ' ');
+        console.log(`  [${i + 1}/${statements.length}] Executing: ${preview}...`);
         await pool.query(statement);
       } catch (error: any) {
         // Ignore "already exists" errors and ON CONFLICT errors
         if (!error.message.includes('already exists') && !error.message.includes('ON CONFLICT')) {
           console.error(`  ❌ Error in statement ${i + 1}:`, error.message);
-          throw error;
+          console.error(`     Statement: ${statement.substring(0, 100)}`);
+          // Don't throw, continue to next statement
+        } else {
+          console.log(`  ℹ️  Statement ${i + 1} skipped (already exists)`);
         }
-        console.log(`  ℹ️  Statement ${i + 1} skipped (already exists)`);
       }
     }
 
@@ -163,4 +169,46 @@ async function createTablesInline(): Promise<void> {
   } finally {
     client.release();
   }
+}
+
+function parseSqlStatements(sqlScript: string): string[] {
+  const statements: string[] = [];
+  let currentStatement = '';
+
+  const lines = sqlScript.split('\n');
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+
+    // Skip empty lines and comments
+    if (!trimmedLine || trimmedLine.startsWith('--')) {
+      continue;
+    }
+
+    currentStatement += ' ' + trimmedLine;
+
+    // If the line ends with a semicolon, we have a complete statement
+    if (trimmedLine.endsWith(';')) {
+      const cleanedStatement = currentStatement
+        .replace(/--.*$/gm, '') // Remove inline comments
+        .trim()
+        .slice(0, -1); // Remove the trailing semicolon
+
+      if (cleanedStatement.length > 0) {
+        statements.push(cleanedStatement);
+      }
+
+      currentStatement = '';
+    }
+  }
+
+  // Add any remaining statement
+  if (currentStatement.trim().length > 0) {
+    const cleanedStatement = currentStatement.trim();
+    if (!cleanedStatement.endsWith(';')) {
+      statements.push(cleanedStatement);
+    }
+  }
+
+  return statements;
 }
