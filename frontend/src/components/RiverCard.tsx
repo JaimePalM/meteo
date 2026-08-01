@@ -22,9 +22,9 @@ const getRiverStatus = (temp: number): string => {
 
 const getRiverColor = (temp: number): string => {
   if (temp >= 22) return '#FF8C00';
-  if (temp >= 16) return '#4A90D9';
-  if (temp >= 10) return '#5DADE2';
-  return '#1A6FA8';
+  if (temp >= 16) return '#B3E5FC';
+  if (temp >= 10) return '#B3E5FC';
+  return '#B3E5FC';
 };
 
 export const RiverCard: FC<RiverCardProps> = ({ data, loading }) => {

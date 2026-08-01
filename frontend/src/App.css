@@ -5,8 +5,29 @@
   background: linear-gradient(135deg, #FF8C00 0%, #FFB366 100%);
   padding: 16px;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+/* Logo Container */
+.logo-top-container {
+  display: flex;
   justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px 0;
+  flex-shrink: 0;
+}
+
+.logo-top {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+  max-width: 90%;
 }
 
 .dashboard-grid {
@@ -15,7 +36,12 @@
   gap: 16px;
   width: 100%;
   max-width: 1920px;
-  height: calc(100vh - 32px);
+  height: auto;
+}
+
+.temperature-chart-full {
+  width: 100%;
+  max-width: 1920px;
 }
 
 .dashboard-left,
@@ -23,7 +49,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 
 .dashboard-section {
@@ -221,19 +247,8 @@
   background: rgba(255, 255, 255, 0.5);
 }
 
-/* Responsive Design */
 @media (max-width: 1280px) {
   .dashboard-grid {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-
-  .dashboard-left,
-  .dashboard-right {
-    overflow-y: visible;
-  }
-
-  .weather-grid.modern {
     grid-template-columns: 1fr;
   }
 }
@@ -241,10 +256,12 @@
 @media (max-width: 768px) {
   .public-display {
     padding: 12px;
+    gap: 12px;
   }
 
   .dashboard-grid {
     gap: 12px;
+    grid-template-columns: 1fr;
   }
 
   .dashboard-section {
@@ -265,6 +282,23 @@
 
   .weather-item .value {
     font-size: 18px;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1280px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .dashboard-left,
+  .dashboard-right {
+    overflow-y: visible;
+  }
+
+  .weather-grid.modern {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -779,4 +813,64 @@
 .admin-tab.active {
   color: #1d4ed8;
   border-bottom-color: #1d4ed8;
+}
+
+/* ─── River Display Logo ──────────────────────────────────────────────────── */
+.river-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+}
+
+.river-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 16px;
+  flex-shrink: 0;
+}
+
+.river-logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.river-container .dashboard-grid {
+  flex: 1;
+  width: 100%;
+  height: auto;
+}
+
+/* ─── Public Display Logo ──────────────────────────────────────────────────── */
+.public-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+}
+
+.public-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 16px;
+  flex-shrink: 0;
+}
+
+.public-logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.public-container .dashboard-grid {
+  flex: 1;
+  width: 100%;
+  height: auto;
 }

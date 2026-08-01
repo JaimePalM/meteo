@@ -4,6 +4,7 @@ import { WeatherData } from '../services/api';
 interface WeatherCardProps {
   data: WeatherData | null;
   loading: boolean;
+  pressure?: number | null;
 }
 
 // Función para obtener emoji según temperatura
@@ -36,7 +37,7 @@ const getHumidityEmoji = (humidity: number): string => {
   return '🌧️';
 };
 
-export const WeatherCard: FC<WeatherCardProps> = ({ data, loading }) => {
+export const WeatherCard: FC<WeatherCardProps> = ({ data, loading, pressure }) => {
   if (loading) {
     return (
       <div className="weather-card loading">
@@ -124,6 +125,17 @@ export const WeatherCard: FC<WeatherCardProps> = ({ data, loading }) => {
             <span className="value">{precipNum} mm</span>
           </div>
         </div>
+
+        {/* Presión */}
+        {pressure !== null && pressure !== undefined && (
+          <div className="weather-item pressure">
+            <div className="item-emoji">🔹</div>
+            <div className="item-content">
+              <span className="label">Presión</span>
+              <span className="value">{pressure} hPa</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,8 +3,6 @@ import { useWeatherData } from '../hooks/useWeatherData';
 import { WeatherCard } from '../components/WeatherCard';
 import { TemperatureChart } from '../components/TemperatureChart';
 import { HumidityChart } from '../components/HumidityChart';
-import { PrecipitationChart } from '../components/PrecipitationChart';
-import { PressureGauge } from '../components/PressureGauge';
 
 export const PublicDisplay: FC = () => {
   const { current, monthly, loading, error } = useWeatherData();
@@ -23,37 +21,38 @@ export const PublicDisplay: FC = () => {
 
   return (
     <div className="public-display">
+      {/* Logo Container */}
+      <div className="logo-top-container">
+        <img 
+          src="/logo-calasanz.png" 
+          alt="Logo Calasanz Santander" 
+          className="logo-top"
+        />
+      </div>
+
+      {/* Dashboard content */}
       <div className="dashboard-grid">
         {/* Left Column */}
         <div className="dashboard-left">
           {/* Current Conditions */}
           <div className="dashboard-section conditions">
-            <WeatherCard data={current} loading={loading} />
-          </div>
-
-          {/* Temperature Chart */}
-          <div className="dashboard-section temperature">
-            <TemperatureChart data={monthly} loading={loading} />
+            <WeatherCard data={current} loading={loading} pressure={current?.pressure} />
           </div>
         </div>
 
         {/* Right Column */}
         <div className="dashboard-right">
-          {/* Pressure Gauge */}
-          <div className="dashboard-section pressure">
-            <h3>🔹 Presión Atmosférica</h3>
-            {current && <PressureGauge value={current.pressure} />}
-          </div>
-
           {/* Humidity Chart */}
           <div className="dashboard-section humidity">
             <HumidityChart data={monthly} loading={loading} />
           </div>
+        </div>
+      </div>
 
-          {/* Precipitation Chart */}
-          <div className="dashboard-section precipitation">
-            <PrecipitationChart data={monthly} loading={loading} />
-          </div>
+      {/* Full Width Temperature Chart */}
+      <div className="temperature-chart-full">
+        <div className="dashboard-section temperature">
+          <TemperatureChart data={monthly} loading={loading} />
         </div>
       </div>
     </div>

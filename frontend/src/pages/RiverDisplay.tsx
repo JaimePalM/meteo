@@ -20,6 +20,16 @@ export const RiverDisplay: FC = () => {
 
   return (
     <div className="public-display river-display">
+      {/* Logo Container */}
+      <div className="logo-top-container">
+        <img 
+          src="/logo-calasanz.png" 
+          alt="Logo Calasanz Santander" 
+          className="logo-top"
+        />
+      </div>
+
+      {/* Dashboard content */}
       <div className="dashboard-grid">
         {/* Left Column: Current river conditions */}
         <div className="dashboard-left">
