@@ -3,10 +3,17 @@ import pool from '../models/database';
 interface RiverData {
   id?: number;
   temperature: number;
+  calidad_biologica: string;
+  estado_rio: string;
+  bosque_rivera: string;
   recorded_date: string;
   created_at?: string;
   updated_at?: string;
 }
+
+const CALIDAD_BIOLOGICA_OPTIONS = ['Muy buena', 'Buena', 'Regular', 'Deficiente'];
+const ESTADO_RIO_OPTIONS = ['Muy bueno', 'Bueno', 'Regular', 'Deficiente'];
+const BOSQUE_RIVERA_OPTIONS = ['Muy bueno', 'Bueno', 'Regular', 'Deficiente'];
 
 export class RiverService {
   async getCurrentRiver(): Promise<RiverData | null> {
@@ -50,10 +57,10 @@ export class RiverService {
   async createRiverRecord(data: RiverData): Promise<RiverData> {
     try {
       const result = await pool.query(
-        `INSERT INTO river_data (temperature, recorded_date)
-         VALUES ($1, $2)
+        `INSERT INTO river_data (temperature, calidad_biologica, estado_rio, bosque_rivera, recorded_date)
+         VALUES ($1, $2, $3, $4, $5)
          RETURNING *`,
-        [data.temperature, data.recorded_date]
+        [data.temperature, data.calidad_biologica, data.estado_rio, data.bosque_rivera, data.recorded_date]
       );
       return result.rows[0];
     } catch (error) {
@@ -71,6 +78,18 @@ export class RiverService {
       if (data.temperature !== undefined) {
         fields.push(`temperature = $${paramIdx++}`);
         values.push(data.temperature);
+      }
+      if (data.calidad_biologica !== undefined) {
+        fields.push(`calidad_biologica = $${paramIdx++}`);
+        values.push(data.calidad_biologica);
+      }
+      if (data.estado_rio !== undefined) {
+        fields.push(`estado_rio = $${paramIdx++}`);
+        values.push(data.estado_rio);
+      }
+      if (data.bosque_rivera !== undefined) {
+        fields.push(`bosque_rivera = $${paramIdx++}`);
+        values.push(data.bosque_rivera);
       }
       if (data.recorded_date !== undefined) {
         fields.push(`recorded_date = $${paramIdx++}`);

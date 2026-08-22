@@ -91,20 +91,20 @@ export const RiverCard: FC<RiverCardProps> = ({ data, loading }) => {
 
       <div className="river-info-grid">
         <div className="river-info-item">
-          <span className="river-info-label">Estado</span>
-          <span className="river-info-value" style={{ color }}>{status}</span>
+          <span className="river-info-label">Calidad biológica del agua</span>
+          <span className="river-info-value">{data.calidad_biologica || 'Buena'}</span>
+        </div>
+        <div className="river-info-item">
+          <span className="river-info-label">Estado del río</span>
+          <span className="river-info-value">{data.estado_rio || 'Bueno'}</span>
+        </div>
+        <div className="river-info-item">
+          <span className="river-info-label">Bosque de rivera</span>
+          <span className="river-info-value">{data.bosque_rivera || 'Bueno'}</span>
         </div>
         <div className="river-info-item">
           <span className="river-info-label">Temperatura</span>
           <span className="river-info-value">{temp.toFixed(2)}°C</span>
-        </div>
-        <div className="river-info-item">
-          <span className="river-info-label">Nivel</span>
-          <span className="river-info-value">Normal</span>
-        </div>
-        <div className="river-info-item">
-          <span className="river-info-label">Calidad</span>
-          <span className="river-info-value">Buena</span>
         </div>
       </div>
     </div>

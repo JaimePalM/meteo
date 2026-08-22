@@ -8,7 +8,7 @@ export const RiverDisplay: FC = () => {
 
   if (error) {
     return (
-      <div className="public-display">
+      <div className="public-display river-display">
         <div style={{ padding: '40px', textAlign: 'center', color: 'red' }}>
           <h1>Error al cargar datos del río</h1>
           <p>{error}</p>
@@ -20,14 +20,15 @@ export const RiverDisplay: FC = () => {
 
   return (
     <div className="public-display river-display">
-      {/* Logo Container */}
-      <div className="logo-top-container">
+      {/* Header with logo left, title center */}
+      <header className="panel-header">
         <img 
           src="/logo-calasanz.png" 
           alt="Logo Calasanz Santander" 
-          className="logo-top"
+          className="panel-logo"
         />
-      </div>
+        <h1 className="panel-title">RÍOS</h1>
+      </header>
 
       {/* Dashboard content */}
       <div className="dashboard-grid">
@@ -45,6 +46,12 @@ export const RiverDisplay: FC = () => {
             <RiverTemperatureChart data={monthly} loading={loading} />
           </div>
         </div>
+      </div>
+
+      {/* Logos at bottom */}
+      <div className="river-logos-bottom">
+        <img src="/logo_cambera.png" alt="Cambera" className="river-logo-bottom" />
+        <img src="/proyecto-rios-nobg.png" alt="Proyecto Ríos" className="river-logo-bottom" />
       </div>
     </div>
   );

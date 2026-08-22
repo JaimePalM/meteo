@@ -69,6 +69,29 @@ export interface WeatherData {
 export interface RiverData {
   id: number;
   temperature: number;
+  calidad_biologica: string;
+  estado_rio: string;
+  bosque_rivera: string;
+  recorded_date: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CentinelasData {
+  id: number;
+  temperatura_agua: number;
+  flora_invasora: string;
+  residuos: string;
+  efluentes: string;
+  mortandades: string;
+  recorded_date: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface POMData {
+  id: number;
+  temperatura_mar: number;
   recorded_date: string;
   created_at?: string;
   updated_at?: string;
@@ -83,6 +106,16 @@ export const weatherApi = {
 export const riverApi = {
   getCurrent: () => api.get<RiverData>('/river/current'),
   getMonthlyHistory: () => api.get<RiverData[]>('/river/monthly'),
+};
+
+export const centinelasApi = {
+  getCurrent: () => api.get<CentinelasData>('/centinelas/current'),
+  getMonthlyHistory: () => api.get<CentinelasData[]>('/centinelas/monthly'),
+};
+
+export const pomApi = {
+  getCurrent: () => api.get<POMData>('/pom/current'),
+  getMonthlyHistory: () => api.get<POMData[]>('/pom/monthly'),
 };
 
 // Auth endpoints
@@ -109,4 +142,18 @@ export const adminApi = {
   updateRiver: (id: number, data: Partial<RiverData>) =>
     api.put<RiverData>(`/admin/river/${id}`, data),
   deleteRiver: (id: number) => api.delete(`/admin/river/${id}`),
+
+  getCentinelasHistory: () => api.get<CentinelasData[]>('/admin/centinelas/history'),
+  createCentinelas: (data: Omit<CentinelasData, 'id' | 'created_at' | 'updated_at'>) =>
+    api.post<CentinelasData>('/admin/centinelas', data),
+  updateCentinelas: (id: number, data: Partial<CentinelasData>) =>
+    api.put<CentinelasData>(`/admin/centinelas/${id}`, data),
+  deleteCentinelas: (id: number) => api.delete(`/admin/centinelas/${id}`),
+
+  getPOMHistory: () => api.get<POMData[]>('/admin/pom/history'),
+  createPOM: (data: Omit<POMData, 'id' | 'created_at' | 'updated_at'>) =>
+    api.post<POMData>('/admin/pom', data),
+  updatePOM: (id: number, data: Partial<POMData>) =>
+    api.put<POMData>(`/admin/pom/${id}`, data),
+  deletePOM: (id: number) => api.delete(`/admin/pom/${id}`),
 };

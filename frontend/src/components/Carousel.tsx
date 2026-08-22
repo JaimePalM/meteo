@@ -2,19 +2,32 @@ import { FC, ReactNode, useState, useEffect } from 'react';
 
 interface CarouselProps {
   children: ReactNode[];
-  interval?: number; // ms
+  interval?: number;
+  autoPlay?: boolean;
+  panelNames?: string[];
 }
 
-export const Carousel: FC<CarouselProps> = ({ children, interval = 10000 }) => {
+export const Carousel: FC<CarouselProps> = ({ 
+  children, 
+  interval = 10000, 
+  autoPlay = true,
+  panelNames = []
+}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    if (!autoPlay) return;
+    
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % children.length);
     }, interval);
 
     return () => clearInterval(timer);
-  }, [children.length, interval]);
+  }, [children.length, interval, autoPlay]);
+
+  const getPanelName = (index: number) => {
+    return panelNames[index] || `Panel ${index + 1}`;
+  };
 
   return (
     <div className="carousel">
@@ -34,8 +47,11 @@ export const Carousel: FC<CarouselProps> = ({ children, interval = 10000 }) => {
             key={index}
             className={`indicator ${index === currentIndex ? 'active' : ''}`}
             onClick={() => setCurrentIndex(index)}
-            aria-label={`Go to slide ${index + 1}`}
-          />
+            aria-label={`Go to ${getPanelName(index)}`}
+            title={getPanelName(index)}
+          >
+            {getPanelName(index)}
+          </button>
         ))}
       </div>
     </div>

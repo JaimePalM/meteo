@@ -1,11 +1,22 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { PublicDisplay } from './pages/PublicDisplay';
-import { RiverDisplay } from './pages/RiverDisplay';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { LoginForm } from './components/LoginForm';
 import { PrivateRoute } from './components/PrivateRoute';
 import { Carousel } from './components/Carousel';
+import { Panel1Logo } from './panels/meteoescuela/Panel1Logo';
+import { Panel2Placeholder } from './panels/meteoescuela/Panel2Placeholder';
+import { Panel3Dashboard } from './panels/meteoescuela/Panel3Dashboard';
+import { Panel4TempChart } from './panels/meteoescuela/Panel4TempChart';
+import { Panel5PrecipChart } from './panels/meteoescuela/Panel5PrecipChart';
+import { CentinelasImagePanel } from './panels/centinelas/CentinelasImagePanel';
+import { Panel13Dashboard } from './panels/centinelas/Panel13Dashboard';
+import { POMImagePanel } from './panels/pom/POMImagePanel';
+import { Panel16SeaTemp } from './panels/pom/Panel16SeaTemp';
+import { Panel17Logos } from './panels/rios/Panel17Logos';
+import { Panel18Placeholder } from './panels/rios/Panel18Placeholder';
+import { Panel19Dashboard } from './panels/rios/Panel19Dashboard';
+import { Panel20Placeholder } from './panels/rios/Panel20Placeholder';
 import './App.css';
 
 function App() {
@@ -15,16 +26,37 @@ function App() {
     setRefreshKey((prev) => prev + 1);
   };
 
+  const autoPlay = import.meta.env.VITE_CAROUSEL_AUTOPLAY !== 'false';
+  const panelNames = Array.from({ length: 20 }, (_, i) => `${i + 1}`);
+
   return (
     <Router>
       <Routes>
-        {/* Public display - no auth needed, rotates every 10s */}
+        {/* Public display - rotates every 10s, can be disabled via VITE_CAROUSEL_AUTOPLAY=false */}
         <Route
           path="/"
           element={
-            <Carousel interval={10000}>
-              <PublicDisplay key={refreshKey} />
-              <RiverDisplay />
+            <Carousel interval={10000} autoPlay={autoPlay} panelNames={panelNames}>
+              <Panel1Logo key={refreshKey} />
+              <Panel2Placeholder />
+              <Panel3Dashboard />
+              <Panel4TempChart />
+              <Panel5PrecipChart />
+              <CentinelasImagePanel panelNum={6} imageName="placeholder" />
+              <CentinelasImagePanel panelNum={7} imageName="placeholder" />
+              <CentinelasImagePanel panelNum={8} imageName="placeholder" />
+              <CentinelasImagePanel panelNum={9} imageName="placeholder" />
+              <CentinelasImagePanel panelNum={10} imageName="placeholder" />
+              <CentinelasImagePanel panelNum={11} imageName="placeholder" />
+              <CentinelasImagePanel panelNum={12} imageName="placeholder" />
+              <Panel13Dashboard />
+              <POMImagePanel panelNum={14} imageName="placeholder" />
+              <POMImagePanel panelNum={15} imageName="placeholder" />
+              <Panel16SeaTemp />
+              <Panel17Logos />
+              <Panel18Placeholder />
+              <Panel19Dashboard />
+              <Panel20Placeholder />
             </Carousel>
           }
         />

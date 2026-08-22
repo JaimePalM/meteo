@@ -1,11 +1,15 @@
 import { Router, Request, Response } from 'express';
 import { WeatherService } from '../services/weatherService';
 import { RiverService } from '../services/riverService';
+import { CentinelasService } from '../services/centinelasService';
+import { POMService } from '../services/pomService';
 import authMiddleware from '../middleware/auth';
 
 const router = Router();
 const weatherService = new WeatherService();
 const riverService = new RiverService();
+const centinelasService = new CentinelasService();
+const pomService = new POMService();
 
 // Protect all admin routes with auth middleware
 router.use((req, res, next) => {
@@ -129,7 +133,7 @@ router.get('/river/history', async (req: Request, res: Response) => {
 // POST /api/admin/river
 router.post('/river', async (req: Request, res: Response) => {
   try {
-    const { temperature, recorded_date } = req.body;
+    const { temperature, recorded_date, calidad_biologica, estado_rio, bosque_rivera } = req.body;
     if (temperature === undefined || temperature === null || temperature === '' || !recorded_date) {
       return res.status(400).json({ error: 'Missing required fields: temperature, recorded_date' });
     }
@@ -137,7 +141,13 @@ router.post('/river', async (req: Request, res: Response) => {
     if (isNaN(temp)) {
       return res.status(400).json({ error: 'Invalid temperature value' });
     }
-    const result = await riverService.createRiverRecord({ temperature: temp, recorded_date });
+    const result = await riverService.createRiverRecord({ 
+      temperature: temp, 
+      recorded_date,
+      calidad_biologica: calidad_biologica || 'Buena',
+      estado_rio: estado_rio || 'Bueno',
+      bosque_rivera: bosque_rivera || 'Bueno'
+    });
     res.status(201).json(result);
   } catch (error) {
     console.error('[ADMIN-RIVER-POST] Error:', error);
@@ -149,10 +159,13 @@ router.post('/river', async (req: Request, res: Response) => {
 router.put('/river/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { temperature, recorded_date } = req.body;
-    const updateData: { temperature?: number; recorded_date?: string } = {};
+    const { temperature, recorded_date, calidad_biologica, estado_rio, bosque_rivera } = req.body;
+    const updateData: { temperature?: number; recorded_date?: string; calidad_biologica?: string; estado_rio?: string; bosque_rivera?: string } = {};
     if (temperature !== undefined && temperature !== '') updateData.temperature = parseFloat(temperature);
     if (recorded_date) updateData.recorded_date = recorded_date;
+    if (calidad_biologica) updateData.calidad_biologica = calidad_biologica;
+    if (estado_rio) updateData.estado_rio = estado_rio;
+    if (bosque_rivera) updateData.bosque_rivera = bosque_rivera;
 
     const result = await riverService.updateRiverRecord(parseInt(id), updateData);
     if (!result) return res.status(404).json({ error: 'River record not found' });
@@ -172,6 +185,146 @@ router.delete('/river/:id', async (req: Request, res: Response) => {
     res.json({ message: 'River record deleted successfully' });
   } catch (error) {
     console.error('[ADMIN-RIVER-DELETE] Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── Centinelas Admin Routes ────────────────────────────────────────────────────
+
+// GET /api/admin/centinelas/history
+router.get('/centinelas/history', async (req: Request, res: Response) => {
+  try {
+    const data = await centinelasService.getAllHistory();
+    res.json(Array.isArray(data) ? data : [data]);
+  } catch (error) {
+    console.error('[ADMIN-CENTINELAS-GET] Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/admin/centinelas
+router.post('/centinelas', async (req: Request, res: Response) => {
+  try {
+    const { temperatura_agua, recorded_date, flora_invasora, residuos, efluentes, mortandades } = req.body;
+    if (temperatura_agua === undefined || temperatura_agua === null || temperatura_agua === '' || !recorded_date) {
+      return res.status(400).json({ error: 'Missing required fields: temperatura_agua, recorded_date' });
+    }
+    const temp = parseFloat(temperatura_agua);
+    if (isNaN(temp)) {
+      return res.status(400).json({ error: 'Invalid temperatura_agua value' });
+    }
+    const result = await centinelasService.createCentinelasRecord({ 
+      temperatura_agua: temp, 
+      recorded_date,
+      flora_invasora: flora_invasora || 'Ninguna',
+      residuos: residuos || 'Ninguno',
+      efluentes: efluentes || 'Ninguno',
+      mortandades: mortandades || 'Ninguna'
+    });
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('[ADMIN-CENTINELAS-POST] Error:', error);
+    res.status(500).json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
+// PUT /api/admin/centinelas/:id
+router.put('/centinelas/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { temperatura_agua, recorded_date, flora_invasora, residuos, efluentes, mortandades } = req.body;
+    const updateData: { temperatura_agua?: number; recorded_date?: string; flora_invasora?: string; residuos?: string; efluentes?: string; mortandades?: string } = {};
+    if (temperatura_agua !== undefined && temperatura_agua !== '') updateData.temperatura_agua = parseFloat(temperatura_agua);
+    if (recorded_date) updateData.recorded_date = recorded_date;
+    if (flora_invasora) updateData.flora_invasora = flora_invasora;
+    if (residuos) updateData.residuos = residuos;
+    if (efluentes) updateData.efluentes = efluentes;
+    if (mortandades) updateData.mortandades = mortandades;
+
+    const result = await centinelasService.updateCentinelasRecord(parseInt(id), updateData);
+    if (!result) return res.status(404).json({ error: 'Centinelas record not found' });
+    res.json(result);
+  } catch (error) {
+    console.error('[ADMIN-CENTINELAS-PUT] Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE /api/admin/centinelas/:id
+router.delete('/centinelas/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const success = await centinelasService.deleteCentinelasRecord(parseInt(id));
+    if (!success) return res.status(404).json({ error: 'Centinelas record not found' });
+    res.json({ message: 'Centinelas record deleted successfully' });
+  } catch (error) {
+    console.error('[ADMIN-CENTINELAS-DELETE] Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── POM Admin Routes ──────────────────────────────────────────────────────────
+
+// GET /api/admin/pom/history
+router.get('/pom/history', async (req: Request, res: Response) => {
+  try {
+    const data = await pomService.getAllHistory();
+    res.json(Array.isArray(data) ? data : [data]);
+  } catch (error) {
+    console.error('[ADMIN-POM-GET] Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/admin/pom
+router.post('/pom', async (req: Request, res: Response) => {
+  try {
+    const { temperatura_mar, recorded_date } = req.body;
+    if (temperatura_mar === undefined || temperatura_mar === null || temperatura_mar === '' || !recorded_date) {
+      return res.status(400).json({ error: 'Missing required fields: temperatura_mar, recorded_date' });
+    }
+    const temp = parseFloat(temperatura_mar);
+    if (isNaN(temp)) {
+      return res.status(400).json({ error: 'Invalid temperatura_mar value' });
+    }
+    const result = await pomService.createPOMRecord({ 
+      temperatura_mar: temp, 
+      recorded_date
+    });
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('[ADMIN-POM-POST] Error:', error);
+    res.status(500).json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
+// PUT /api/admin/pom/:id
+router.put('/pom/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { temperatura_mar, recorded_date } = req.body;
+    const updateData: { temperatura_mar?: number; recorded_date?: string } = {};
+    if (temperatura_mar !== undefined && temperatura_mar !== '') updateData.temperatura_mar = parseFloat(temperatura_mar);
+    if (recorded_date) updateData.recorded_date = recorded_date;
+
+    const result = await pomService.updatePOMRecord(parseInt(id), updateData);
+    if (!result) return res.status(404).json({ error: 'POM record not found' });
+    res.json(result);
+  } catch (error) {
+    console.error('[ADMIN-POM-PUT] Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE /api/admin/pom/:id
+router.delete('/pom/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const success = await pomService.deletePOMRecord(parseInt(id));
+    if (!success) return res.status(404).json({ error: 'POM record not found' });
+    res.json({ message: 'POM record deleted successfully' });
+  } catch (error) {
+    console.error('[ADMIN-POM-DELETE] Error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

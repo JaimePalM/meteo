@@ -21,14 +21,15 @@ export const PublicDisplay: FC = () => {
 
   return (
     <div className="public-display">
-      {/* Logo Container */}
-      <div className="logo-top-container">
+      {/* Header with logo left, title center */}
+      <header className="panel-header">
         <img 
           src="/logo-calasanz.png" 
           alt="Logo Calasanz Santander" 
-          className="logo-top"
+          className="panel-logo"
         />
-      </div>
+        <h1 className="panel-title">METEOESCUELA</h1>
+      </header>
 
       {/* Dashboard content */}
       <div className="dashboard-grid">

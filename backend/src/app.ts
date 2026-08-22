@@ -4,6 +4,8 @@ import weatherRoutes from './routes/weather';
 import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
 import riverRoutes from './routes/river';
+import centinelasRoutes from './routes/centinelas';
+import pomRoutes from './routes/pom';
 
 const app: Express = express();
 
@@ -42,6 +44,8 @@ app.use('/api/weather', weatherRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/river', riverRoutes);
+app.use('/api/centinelas', centinelasRoutes);
+app.use('/api/pom', pomRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

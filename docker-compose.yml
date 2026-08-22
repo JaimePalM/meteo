@@ -50,6 +50,7 @@ services:
     container_name: meteo-frontend
     environment:
       VITE_API_URL: /api
+      VITE_CAROUSEL_AUTOPLAY: "false"
     ports:
       - "3000:3000"
     depends_on:

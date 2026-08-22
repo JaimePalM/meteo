@@ -26,6 +26,9 @@ CREATE INDEX idx_weather_recorded_date ON weather_data(recorded_date DESC);
 CREATE TABLE IF NOT EXISTS river_data (
     id SERIAL PRIMARY KEY,
     temperature DECIMAL(5, 2) NOT NULL,
+    calidad_biologica VARCHAR(50) NOT NULL DEFAULT 'Buena',
+    estado_rio VARCHAR(50) NOT NULL DEFAULT 'Bueno',
+    bosque_rivera VARCHAR(50) NOT NULL DEFAULT 'Bueno',
     recorded_date DATE NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -33,6 +36,34 @@ CREATE TABLE IF NOT EXISTS river_data (
 
 -- Create index for river_data date queries
 CREATE INDEX idx_river_recorded_date ON river_data(recorded_date DESC);
+
+-- Create centinelas_data table
+CREATE TABLE IF NOT EXISTS centinelas_data (
+    id SERIAL PRIMARY KEY,
+    temperatura_agua DECIMAL(5, 2) NOT NULL,
+    flora_invasora VARCHAR(50) NOT NULL DEFAULT 'Ninguna',
+    residuos VARCHAR(50) NOT NULL DEFAULT 'Ninguno',
+    efluentes VARCHAR(50) NOT NULL DEFAULT 'Ninguno',
+    mortandades VARCHAR(50) NOT NULL DEFAULT 'Ninguna',
+    recorded_date DATE NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create index for centinelas_data date queries
+CREATE INDEX idx_centinelas_recorded_date ON centinelas_data(recorded_date DESC);
+
+-- Create pom_data table
+CREATE TABLE IF NOT EXISTS pom_data (
+    id SERIAL PRIMARY KEY,
+    temperatura_mar DECIMAL(5, 2) NOT NULL,
+    recorded_date DATE NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create index for pom_data date queries
+CREATE INDEX idx_pom_recorded_date ON pom_data(recorded_date DESC);
 
 -- Insert default admin user (username: admin, password: admin123)
 -- Password hash for 'admin123' using bcrypt (rounds: 10)
@@ -52,10 +83,65 @@ SELECT
 FROM generate_series(0, 29) AS t(n)
 ON CONFLICT DO NOTHING;
 
--- Insert sample river temperature data for the last 30 days
-INSERT INTO river_data (temperature, recorded_date)
+-- Insert sample river temperature data (monthly - last 12 months)
+INSERT INTO river_data (temperature, calidad_biologica, estado_rio, bosque_rivera, recorded_date)
 SELECT
     ROUND((RANDOM() * 8 + 13)::numeric, 2),
+    CASE (RANDOM() * 3)::int
+        WHEN 0 THEN 'Muy buena'
+        WHEN 1 THEN 'Buena'
+        ELSE 'Regular'
+    END,
+    CASE (RANDOM() * 3)::int
+        WHEN 0 THEN 'Muy bueno'
+        WHEN 1 THEN 'Bueno'
+        ELSE 'Regular'
+    END,
+    CASE (RANDOM() * 3)::int
+        WHEN 0 THEN 'Muy bueno'
+        WHEN 1 THEN 'Bueno'
+        ELSE 'Regular'
+    END,
+    (DATE_TRUNC('month', CURRENT_DATE) - (n || ' months')::interval)::DATE
+FROM generate_series(0, 11) AS t(n)
+ON CONFLICT DO NOTHING;
+
+-- Insert sample centinelas data for the last 30 days (daily)
+INSERT INTO centinelas_data (temperatura_agua, flora_invasora, residuos, efluentes, mortandades, recorded_date)
+SELECT
+    ROUND((RANDOM() * 10 + 10)::numeric, 2),
+    CASE (RANDOM() * 4)::int
+        WHEN 0 THEN 'Ninguna'
+        WHEN 1 THEN 'Poca'
+        WHEN 2 THEN 'Moderada'
+        ELSE 'Mucha'
+    END,
+    CASE (RANDOM() * 4)::int
+        WHEN 0 THEN 'Ninguno'
+        WHEN 1 THEN 'Pocos'
+        WHEN 2 THEN 'Moderados'
+        ELSE 'Muchos'
+    END,
+    CASE (RANDOM() * 4)::int
+        WHEN 0 THEN 'Ninguno'
+        WHEN 1 THEN 'Leves'
+        WHEN 2 THEN 'Moderados'
+        ELSE 'Severos'
+    END,
+    CASE (RANDOM() * 4)::int
+        WHEN 0 THEN 'Ninguna'
+        WHEN 1 THEN 'Baja'
+        WHEN 2 THEN 'Media'
+        ELSE 'Alta'
+    END,
     CURRENT_DATE - (n || ' days')::interval
 FROM generate_series(0, 29) AS t(n)
+ON CONFLICT DO NOTHING;
+
+-- Insert sample POM sea temperature data (monthly - last 12 months)
+INSERT INTO pom_data (temperatura_mar, recorded_date)
+SELECT
+    ROUND((RANDOM() * 8 + 14)::numeric, 2),
+    (DATE_TRUNC('month', CURRENT_DATE) - (n || ' months')::interval)::DATE
+FROM generate_series(0, 11) AS t(n)
 ON CONFLICT DO NOTHING;

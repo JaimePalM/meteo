@@ -31,24 +31,43 @@ export const TemperatureChart: FC<TemperatureChartProps> = ({ data, loading }) =
     };
   });
 
+  // Calculate temp range for nice tick intervals
+  const temps = chartData.flatMap(d => [d.temp_max, d.temp_min]);
+  const minTemp = Math.min(...temps);
+  const maxTemp = Math.max(...temps);
+  const range = maxTemp - minTemp;
+  const tickInterval = range > 20 ? 10 : range > 10 ? 5 : 2;
+  
+  // Calculate nice domain bounds
+  const domainMin = Math.floor((minTemp - 2) / tickInterval) * tickInterval;
+  const domainMax = Math.ceil((maxTemp + 2) / tickInterval) * tickInterval;
+  
+  // Generate explicit tick values
+  const ticks = [];
+  for (let v = domainMin; v <= domainMax; v += tickInterval) {
+    ticks.push(v);
+  }
+
   return (
     <div className="chart-container temperature-chart">
       <h3>📊 Temperatura & Precipitación (30 días)</h3>
       <ResponsiveContainer width="100%" height={220}>
-        <ComposedChart data={chartData} margin={{ top: 5, right: 60, left: -15, bottom: 5 }}>
+        <ComposedChart data={chartData} margin={{ top: 5, right: 60, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
           <XAxis dataKey="date" tick={{ fontSize: 11 }} />
           <YAxis 
             yAxisId="left"
-            domain={['dataMin - 2', 'dataMax + 2']} 
-            tick={{ fontSize: 11 }} 
-            label={{ value: '°C', angle: -90, position: 'insideLeft', offset: 5 }} 
+            domain={[domainMin, domainMax]}
+            tick={{ fontSize: 11 }}
+            ticks={ticks}
+            tickFormatter={(value) => `${value}`}
+            label={{ value: '°C', angle: -90, position: 'insideLeft', offset: 10, fontSize: 12, fill: '#666' }}
           />
           <YAxis 
             yAxisId="right"
             orientation="right"
-            tick={{ fontSize: 11 }} 
-            label={{ value: 'mm', angle: 90, position: 'insideRight', offset: 5 }} 
+            tick={{ fontSize: 11 }}
+            label={{ value: 'mm', angle: 90, position: 'insideRight', offset: -10, fontSize: 12, fill: '#666' }}
           />
           <Tooltip 
             contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }}
