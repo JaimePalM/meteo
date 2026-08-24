@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS weather_data (
     humidity INTEGER NOT NULL CHECK (humidity >= 0 AND humidity <= 100),
     pressure DECIMAL(7, 2) NOT NULL,
     precipitation DECIMAL(6, 2) NOT NULL DEFAULT 0,
-    recorded_date DATE NOT NULL,
+    recorded_date DATE NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -5,7 +5,7 @@ import { LoginForm } from './components/LoginForm';
 import { PrivateRoute } from './components/PrivateRoute';
 import { Carousel } from './components/Carousel';
 import { Panel1Logo } from './panels/meteoescuela/Panel1Logo';
-import { Panel2Placeholder } from './panels/meteoescuela/Panel2Placeholder';
+import { Panel2 } from './panels/meteoescuela/Panel2';
 import { Panel3Dashboard } from './panels/meteoescuela/Panel3Dashboard';
 import { Panel4TempChart } from './panels/meteoescuela/Panel4TempChart';
 import { Panel5PrecipChart } from './panels/meteoescuela/Panel5PrecipChart';
@@ -38,20 +38,20 @@ function App() {
           element={
             <Carousel interval={10000} autoPlay={autoPlay} panelNames={panelNames}>
               <Panel1Logo key={refreshKey} />
-              <Panel2Placeholder />
+              <Panel2 />
               <Panel3Dashboard />
               <Panel4TempChart />
               <Panel5PrecipChart />
-              <CentinelasImagePanel panelNum={6} imageName="placeholder" />
-              <CentinelasImagePanel panelNum={7} imageName="placeholder" />
-              <CentinelasImagePanel panelNum={8} imageName="placeholder" />
-              <CentinelasImagePanel panelNum={9} imageName="placeholder" />
-              <CentinelasImagePanel panelNum={10} imageName="placeholder" />
-              <CentinelasImagePanel panelNum={11} imageName="placeholder" />
-              <CentinelasImagePanel panelNum={12} imageName="placeholder" />
+              <CentinelasImagePanel panelNum={6} />
+              <CentinelasImagePanel panelNum={7} />
+              <CentinelasImagePanel panelNum={8} />
+              <CentinelasImagePanel panelNum={9} />
+              <CentinelasImagePanel panelNum={10} />
+              <CentinelasImagePanel panelNum={11} />
+              <CentinelasImagePanel panelNum={12} />
               <Panel13Dashboard />
-              <POMImagePanel panelNum={14} imageName="placeholder" />
-              <POMImagePanel panelNum={15} imageName="placeholder" />
+              <POMImagePanel panelNum={14} />
+              <POMImagePanel panelNum={15} />
               <Panel16SeaTemp />
               <Panel17Logos />
               <Panel18Placeholder />

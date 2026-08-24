@@ -100,7 +100,7 @@ async function createTablesInline(): Promise<void> {
           humidity INTEGER NOT NULL CHECK (humidity >= 0 AND humidity <= 100),
           pressure DECIMAL(7, 2) NOT NULL,
           precipitation DECIMAL(6, 2) NOT NULL DEFAULT 0,
-          recorded_date DATE NOT NULL,
+          recorded_date DATE NOT NULL UNIQUE,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -112,6 +112,9 @@ async function createTablesInline(): Promise<void> {
       CREATE TABLE IF NOT EXISTS river_data (
           id SERIAL PRIMARY KEY,
           temperature DECIMAL(5, 2) NOT NULL,
+          calidad_biologica VARCHAR(50) NOT NULL DEFAULT 'Buena',
+          estado_rio VARCHAR(50) NOT NULL DEFAULT 'Bueno',
+          bosque_rivera VARCHAR(50) NOT NULL DEFAULT 'Bueno',
           recorded_date DATE NOT NULL UNIQUE,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -119,9 +122,39 @@ async function createTablesInline(): Promise<void> {
     `);
     console.log('  ✅ river_data table ready');
 
+    // Create centinelas_data table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS centinelas_data (
+          id SERIAL PRIMARY KEY,
+          temperatura_agua DECIMAL(5, 2) NOT NULL,
+          flora_invasora VARCHAR(50) NOT NULL DEFAULT 'Ninguna',
+          residuos VARCHAR(50) NOT NULL DEFAULT 'Ninguno',
+          efluentes VARCHAR(50) NOT NULL DEFAULT 'Ninguno',
+          mortandades VARCHAR(50) NOT NULL DEFAULT 'Ninguna',
+          recorded_date DATE NOT NULL UNIQUE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('  ✅ centinelas_data table ready');
+
+    // Create pom_data table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS pom_data (
+          id SERIAL PRIMARY KEY,
+          temperatura_mar DECIMAL(5, 2) NOT NULL,
+          recorded_date DATE NOT NULL UNIQUE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('  ✅ pom_data table ready');
+
     // Create indexes
     await client.query(`CREATE INDEX IF NOT EXISTS idx_weather_recorded_date ON weather_data(recorded_date DESC);`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_river_recorded_date ON river_data(recorded_date DESC);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_centinelas_recorded_date ON centinelas_data(recorded_date DESC);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_pom_recorded_date ON pom_data(recorded_date DESC);`);
     console.log('  ✅ Indexes created');
 
     // Insert default admin user
@@ -155,14 +188,81 @@ async function createTablesInline(): Promise<void> {
     if (parseInt(riverCount.rows[0].count) === 0) {
       console.log('  🌊 Inserting sample river data...');
       await client.query(`
-        INSERT INTO river_data (temperature, recorded_date)
+        INSERT INTO river_data (temperature, calidad_biologica, estado_rio, bosque_rivera, recorded_date)
         SELECT
             ROUND((RANDOM() * 8 + 13)::numeric, 2),
+            CASE (RANDOM() * 3)::int
+                WHEN 0 THEN 'Muy buena'
+                WHEN 1 THEN 'Buena'
+                ELSE 'Regular'
+            END,
+            CASE (RANDOM() * 3)::int
+                WHEN 0 THEN 'Muy bueno'
+                WHEN 1 THEN 'Bueno'
+                ELSE 'Regular'
+            END,
+            CASE (RANDOM() * 3)::int
+                WHEN 0 THEN 'Muy bueno'
+                WHEN 1 THEN 'Bueno'
+                ELSE 'Regular'
+            END,
+            (DATE_TRUNC('month', CURRENT_DATE) - (n || ' months')::interval)::DATE
+        FROM generate_series(0, 11) AS t(n)
+        ON CONFLICT DO NOTHING;
+      `);
+      console.log('  ✅ Sample river data inserted');
+    }
+
+    const centinelasCount = await client.query('SELECT COUNT(*) FROM centinelas_data;');
+    if (parseInt(centinelasCount.rows[0].count) === 0) {
+      console.log('  🛰️ Inserting sample centinelas data...');
+      await client.query(`
+        INSERT INTO centinelas_data (temperatura_agua, flora_invasora, residuos, efluentes, mortandades, recorded_date)
+        SELECT
+            ROUND((RANDOM() * 10 + 10)::numeric, 2),
+            CASE (RANDOM() * 4)::int
+                WHEN 0 THEN 'Ninguna'
+                WHEN 1 THEN 'Poca'
+                WHEN 2 THEN 'Moderada'
+                ELSE 'Mucha'
+            END,
+            CASE (RANDOM() * 4)::int
+                WHEN 0 THEN 'Ninguno'
+                WHEN 1 THEN 'Pocos'
+                WHEN 2 THEN 'Moderados'
+                ELSE 'Muchos'
+            END,
+            CASE (RANDOM() * 4)::int
+                WHEN 0 THEN 'Ninguno'
+                WHEN 1 THEN 'Leves'
+                WHEN 2 THEN 'Moderados'
+                ELSE 'Severos'
+            END,
+            CASE (RANDOM() * 4)::int
+                WHEN 0 THEN 'Ninguna'
+                WHEN 1 THEN 'Baja'
+                WHEN 2 THEN 'Media'
+                ELSE 'Alta'
+            END,
             CURRENT_DATE - (n || ' days')::interval
         FROM generate_series(0, 29) AS t(n)
         ON CONFLICT DO NOTHING;
       `);
-      console.log('  ✅ Sample river data inserted');
+      console.log('  ✅ Sample centinelas data inserted');
+    }
+
+    const pomCount = await client.query('SELECT COUNT(*) FROM pom_data;');
+    if (parseInt(pomCount.rows[0].count) === 0) {
+      console.log('  🌊 Inserting sample POM data...');
+      await client.query(`
+        INSERT INTO pom_data (temperatura_mar, recorded_date)
+        SELECT
+            ROUND((RANDOM() * 8 + 14)::numeric, 2),
+            (DATE_TRUNC('month', CURRENT_DATE) - (n || ' months')::interval)::DATE
+        FROM generate_series(0, 11) AS t(n)
+        ON CONFLICT DO NOTHING;
+      `);
+      console.log('  ✅ Sample POM data inserted');
     }
 
     console.log('✅ Database initialized successfully (inline)');

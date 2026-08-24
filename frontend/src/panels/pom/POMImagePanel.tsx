@@ -3,13 +3,12 @@ import { FullScreenImage } from '../../components/FullScreenImage';
 
 interface POMImagePanelProps {
   panelNum: number;
-  imageName: string;
 }
 
-export const POMImagePanel: FC<POMImagePanelProps> = ({ panelNum, imageName }) => {
+export const POMImagePanel: FC<POMImagePanelProps> = ({ panelNum }) => {
   return (
     <FullScreenImage 
-      src={`/pom-panel${panelNum}-${imageName}.jpg`} 
+      src={`/pom-${panelNum}.jpg`} 
       alt={`POM - Panel ${panelNum}`}
       className="pom-panel"
     />
