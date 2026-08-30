@@ -131,8 +131,8 @@ export const Panel13Dashboard: FC = () => {
         <div className="panel-split-bottom">
           <div className="dashboard-section chart">
             <h3>📈 Evolución Temperatura Agua (30 días)</h3>
-            <div className="chart-container full-width-chart" style={{ height: '100%' }}>
-              <SimpleLineChart data={chartData} color="#9F7AEA" yAxisLabel="°C" height={300} />
+            <div className="chart-container full-width-chart">
+              <SimpleLineChart data={chartData} color="#9F7AEA" yAxisLabel="°C" fillContainer={true} />
             </div>
           </div>
         </div>

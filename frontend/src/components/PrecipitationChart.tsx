@@ -8,7 +8,7 @@ interface PrecipitationChartProps {
   height?: number;
 }
 
-export const PrecipitationChart: FC<PrecipitationChartProps> = ({ data, loading, height = 180 }) => {
+export const PrecipitationChart: FC<PrecipitationChartProps> = ({ data, loading, height = 400 }) => {
   if (loading) {
     return <div className="chart-container" style={{ height }}><p>Cargando...</p></div>;
   }

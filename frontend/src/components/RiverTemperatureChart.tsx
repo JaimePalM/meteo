@@ -16,7 +16,7 @@ interface RiverTemperatureChartProps {
   height?: number;
 }
 
-export const RiverTemperatureChart: FC<RiverTemperatureChartProps> = ({ data, loading, height = 200 }) => {
+export const RiverTemperatureChart: FC<RiverTemperatureChartProps> = ({ data, loading, height = 300 }) => {
   if (loading) {
     return (
       <div className="chart-container" style={{ height }}>
@@ -34,7 +34,7 @@ export const RiverTemperatureChart: FC<RiverTemperatureChartProps> = ({ data, lo
   }));
 
   return (
-    <div className="chart-container" style={{ height: '100%', minHeight: height }}>
+    <div className="chart-container" style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />

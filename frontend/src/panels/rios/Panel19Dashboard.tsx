@@ -38,7 +38,7 @@ export const Panel19Dashboard: FC = () => {
         <div className="dashboard-right">
           <div className="dashboard-section temperature">
             <h3>📈 Temperatura del Río (30 días)</h3>
-            <RiverTemperatureChart data={monthly} loading={loading} />
+            <RiverTemperatureChart data={monthly} loading={loading} height={300} />
           </div>
         </div>
       </div>

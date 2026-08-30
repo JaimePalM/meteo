@@ -123,8 +123,8 @@ export const Panel16SeaTemp: FC = () => {
         <div className="panel-split-bottom">
           <div className="dashboard-section chart">
             <h3>📈 Evolución Temperatura Mar (12 meses)</h3>
-            <div className="chart-container full-width-chart" style={{ height: '100%' }}>
-              <SimpleLineChart data={chartData} color="#43A047" yAxisLabel="°C" height={300} />
+            <div className="chart-container full-width-chart">
+              <SimpleLineChart data={chartData} color="#43A047" yAxisLabel="°C" fillContainer={true} />
             </div>
           </div>
         </div>

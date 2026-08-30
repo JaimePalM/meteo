@@ -29,7 +29,7 @@ export const Panel4TempChart: FC = () => {
 
       <div className="temperature-chart-full">
         <div className="dashboard-section temperature">
-          <TemperatureChart data={monthly} loading={loading} />
+          <TemperatureChart data={monthly} loading={loading} height={400} />
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@ interface HumidityChartProps {
   height?: number;
 }
 
-export const HumidityChart: FC<HumidityChartProps> = ({ data, loading, height = 180 }) => {
+export const HumidityChart: FC<HumidityChartProps> = ({ data, loading, height = 300 }) => {
   if (loading) {
     return <div className="chart-container" style={{ height }}><p>Cargando...</p></div>;
   }
@@ -29,7 +29,7 @@ export const HumidityChart: FC<HumidityChartProps> = ({ data, loading, height = 
   });
 
   return (
-    <div className="chart-container humidity-chart" style={{ height: '100%', minHeight: height }}>
+    <div className="chart-container humidity-chart" style={{ height }}>
       <h3>💧 Humedad (30 días)</h3>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 5, right: 10, left: 20, bottom: 5 }}>

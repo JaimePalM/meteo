@@ -32,7 +32,7 @@ export class RiverService {
     try {
       const result = await pool.query(
         `SELECT * FROM river_data
-         WHERE recorded_date >= CURRENT_DATE - INTERVAL '30 days'
+         WHERE recorded_date >= CURRENT_DATE - INTERVAL '12 months'
          ORDER BY recorded_date ASC`
       );
       return result.rows;

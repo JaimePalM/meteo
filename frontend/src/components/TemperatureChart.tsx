@@ -8,7 +8,7 @@ interface TemperatureChartProps {
   height?: number;
 }
 
-export const TemperatureChart: FC<TemperatureChartProps> = ({ data, loading, height = 220 }) => {
+export const TemperatureChart: FC<TemperatureChartProps> = ({ data, loading, height = 400 }) => {
   if (loading) {
     return <div className="chart-container" style={{ height }}><p>Cargando...</p></div>;
   }

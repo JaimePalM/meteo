@@ -29,7 +29,7 @@ export const Panel5PrecipChart: FC = () => {
 
       <div className="temperature-chart-full">
         <div className="dashboard-section precipitation">
-          <PrecipitationChart data={monthly} loading={loading} />
+          <PrecipitationChart data={monthly} loading={loading} height={400} fillContainer={true} />
         </div>
       </div>
     </div>

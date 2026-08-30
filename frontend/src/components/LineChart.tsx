@@ -19,7 +19,7 @@ export const SimpleLineChart: FC<LineChartProps> = ({
   loading = false, 
   color = '#4ECDC4', 
   yAxisLabel = '°C',
-  height = 200
+  height = 300
 }) => {
   if (loading || !data || data.length === 0) {
     return (

@@ -4,6 +4,7 @@ interface FullScreenImageProps {
   src: string;
   alt: string;
   className?: string;
+  cover?: boolean;
 }
 
 export const FullScreenImage: FC<FullScreenImageProps> = ({ src, alt, className = '' }) => {
