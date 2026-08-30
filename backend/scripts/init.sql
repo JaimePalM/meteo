@@ -34,6 +34,12 @@ CREATE TABLE IF NOT EXISTS river_data (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Migrate databases created by earlier versions, where river_data only stored temperature.
+-- These statements are idempotent and preserve all existing records.
+ALTER TABLE river_data ADD COLUMN IF NOT EXISTS calidad_biologica VARCHAR(50) NOT NULL DEFAULT 'Buena';
+ALTER TABLE river_data ADD COLUMN IF NOT EXISTS estado_rio VARCHAR(50) NOT NULL DEFAULT 'Bueno';
+ALTER TABLE river_data ADD COLUMN IF NOT EXISTS bosque_rivera VARCHAR(50) NOT NULL DEFAULT 'Bueno';
+
 -- Create index for river_data date queries
 CREATE INDEX idx_river_recorded_date ON river_data(recorded_date DESC);
 

@@ -1,6 +1,7 @@
 import { FC } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { WeatherData } from '../services/api';
+import { formatChartDate, toFiniteNumber, uniqueDailyRecords } from '../utils/chartUtils';
 
 interface PrecipitationChartProps {
   data: WeatherData[];
@@ -9,66 +10,36 @@ interface PrecipitationChartProps {
 }
 
 export const PrecipitationChart: FC<PrecipitationChartProps> = ({ data, loading, height = 400 }) => {
-  if (loading) {
-    return <div className="chart-container" style={{ height }}><p>Cargando...</p></div>;
-  }
+  if (loading) return <div className="chart-container" style={{ height }}><p>Cargando...</p></div>;
+  if (!Array.isArray(data) || data.length === 0) return <div className="chart-container" style={{ height }}><p>Sin datos</p></div>;
 
-  if (!Array.isArray(data) || data.length === 0) {
-    return <div className="chart-container" style={{ height }}><p>Sin datos</p></div>;
-  }
+  const chartData = uniqueDailyRecords(data)
+    .map((item) => ({
+      date: formatChartDate(item.recorded_date, { month: 'short', day: 'numeric' }),
+      precipitation: toFiniteNumber(item.precipitation),
+    }))
+    .filter((item) => item.precipitation !== null);
 
-  const chartData = data.map((item) => {
-    const precipValue = typeof item.precipitation === 'string' ? parseFloat(item.precipitation) : item.precipitation;
-    return {
-      date: new Date(item.recorded_date).toLocaleDateString('es-ES', {
-        month: 'short',
-        day: 'numeric',
-      }),
-      precipitation: precipValue,
-    };
-  });
+  if (chartData.length === 0) return <div className="chart-container" style={{ height }}><p>Sin valores válidos para representar</p></div>;
 
   return (
-    <div className="chart-container precipitation-chart" style={{ height: '100%', minHeight: height }}>
-      <h3>🌧️ Precipitación (30 días)</h3>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
-          <XAxis 
-            dataKey="date" 
-            tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.9)' }}
-            tickLine={false}
-            axisLine={{ stroke: 'rgba(255,255,255,0.3)' }}
-          />
-          <YAxis
-            tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.9)' }}
-            tickLine={false}
-            axisLine={{ stroke: 'rgba(255,255,255,0.3)' }}
-            label={{ 
-              value: 'mm', 
-              angle: -90, 
-              position: 'insideLeft', 
-              offset: 10, 
-              fontSize: 11, 
-              fill: 'rgba(255,255,255,0.7)' 
-            }}
-          />
-          <Tooltip
-            contentStyle={{ 
-              backgroundColor: 'rgba(30,30,30,0.95)', 
-              border: '1px solid rgba(255,255,255,0.2)',
-              borderRadius: '8px',
-              color: 'white'
-            }}
-            formatter={(value) => [`${(typeof value === 'number' ? value : parseFloat(value as string)).toFixed(1)} mm`, 'Precipitación']}
-          />
-          <Bar 
-            dataKey="precipitation" 
-            fill="#6C5CE7"
-            radius={[4, 4, 0, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="chart-container precipitation-chart" style={{ minHeight: height }}>
+      <h3>Precipitación acumulada · últimos 30 días</h3>
+      <div className="chart-canvas">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
+            <CartesianGrid stroke="#dce4ea" strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="date" minTickGap={24} tick={{ fontSize: 11, fill: '#536471' }} tickLine={false} axisLine={{ stroke: '#cbd5df' }} />
+            <YAxis tick={{ fontSize: 11, fill: '#536471' }} tickFormatter={(value) => `${value} mm`} tickLine={false} axisLine={false} width={54} />
+            <Tooltip
+              contentStyle={{ backgroundColor: '#fff', border: '1px solid #d5dee5', borderRadius: '8px', color: '#1f2d38' }}
+              labelStyle={{ color: '#536471', fontWeight: 600 }}
+              formatter={(value) => [`${Number(value).toFixed(1)} mm`, 'Precipitación']}
+            />
+            <Bar dataKey="precipitation" fill="#437bc0" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };

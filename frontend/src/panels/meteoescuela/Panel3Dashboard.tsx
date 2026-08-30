@@ -1,9 +1,10 @@
 import { FC } from 'react';
-import { useWeatherData } from '../../hooks/useWeatherData';
+import { usePublicData } from '../../context/PublicDataContext';
 import { WeatherCard } from '../../components/WeatherCard';
+import { DataTimestamp } from '../../components/DataTimestamp';
 
 export const Panel3Dashboard: FC = () => {
-  const { current, loading, error } = useWeatherData();
+  const { weather: { current, loading, error } } = usePublicData();
 
   if (error) {
     return (
@@ -25,6 +26,7 @@ export const Panel3Dashboard: FC = () => {
           className="panel-logo"
         />
         <h1 className="panel-title">METEOESCUELA</h1>
+        <DataTimestamp recordedDate={current?.recorded_date} />
       </header>
 
       <div className="panel-full-height-content">

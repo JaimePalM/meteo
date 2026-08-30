@@ -32,6 +32,7 @@
 
 /* Panel Header */
 .panel-header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -53,11 +54,24 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 24px;
-  font-weight: 700;
+  font-size: clamp(26px, 2.2vw, 38px);
+  font-weight: 800;
   color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   margin: 0;
+  white-space: nowrap;
+}
+
+.panel-data-date {
+  margin-left: auto;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.96);
+  background: rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 11px;
+  font-weight: 650;
   white-space: nowrap;
 }
 
@@ -115,7 +129,7 @@
   background: white;
   padding: 16px;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 24px rgba(24, 50, 66, 0.14);
   min-height: fit-content;
 }
 
@@ -223,13 +237,30 @@
   border-radius: 8px;
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-container h3 {
   font-size: 14px;
-  color: #1f2937;
-  margin-bottom: 8px;
-  font-weight: 600;
+  color: #263744;
+  margin: 0 0 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.chart-canvas,
+.chart-plot {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.chart-empty {
+  display: grid;
+  place-items: center;
+  color: #667784;
+  font-size: 14px;
 }
 
 .chart-container.temperature-chart {
@@ -483,6 +514,9 @@
   flex: 1;
   overflow-y: auto;
   padding: 24px;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .admin-form-section,
@@ -554,6 +588,37 @@
   margin-bottom: 16px;
 }
 
+.history-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.history-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #52616b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.history-filter input {
+  padding: 7px 9px;
+  font-size: 13px;
+}
+
+.admin-notice {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border: 1px solid #9bd7bb;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #17633b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .history-header h2 {
   font-size: 18px;
   color: #1f2937;
@@ -573,6 +638,8 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .history-table thead {
@@ -850,6 +917,18 @@
 /* ─── River Display ───────────────────────────────────────────────────────── */
 .river-display {
   background: linear-gradient(135deg, #1565C0 0%, #4A90D9 100%);
+  overflow: hidden;
+}
+
+.river-display .dashboard-grid {
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.river-display .dashboard-left,
+.river-display .dashboard-right {
+  min-height: 0;
 }
 
 .river-display .dashboard-section {
@@ -864,6 +943,15 @@
 
 .river-display .chart-container {
   background: rgba(255, 255, 255, 0.95);
+}
+
+.river-display .dashboard-section.temperature {
+  background: #fff;
+  border: 0;
+}
+
+.river-display .dashboard-section.temperature h3 {
+  color: #263744;
 }
 
 /* RiverCard */
@@ -1043,15 +1131,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 100px;
-  padding: 80px 24px;
+  gap: 48px;
+  padding: 18px 24px 22px;
   flex-shrink: 0;
   width: 100%;
   max-width: 1920px;
 }
 
 .river-logo-bottom {
-  height: 150px;
+  height: 72px;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
@@ -1100,15 +1188,20 @@
   display: flex;
   width: 100%;
   height: 100%;
-  gap: 0;
+  gap: clamp(16px, 2vw, 36px);
+  padding: clamp(16px, 2vw, 36px);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .panel2-dual .panel2-img {
-  flex: 1;
-  max-width: 50%;
-  max-height: 100%;
-  height: auto;
-  width: auto;
+  width: calc(50% - 18px);
+  height: 100%;
+  min-width: 0;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(73, 42, 10, 0.16);
   object-fit: contain;
   object-position: center;
 }
@@ -1354,6 +1447,14 @@
   min-height: 0;
 }
 
+.panel-split-bottom .dashboard-section.chart {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .full-width-dashboard {
   width: 100%;
   max-width: 1920px;
@@ -1403,7 +1504,7 @@
 
 .full-width-chart {
   width: 100%;
-  height: 100%;
+  flex: 1;
   max-height: 100%;
   min-height: 0;
   display: flex;
@@ -1458,6 +1559,18 @@
   font-size: 24px;
   font-weight: 700;
   color: white;
+}
+
+.pom-month-item.current-month {
+  background: rgba(255, 255, 255, 0.29);
+  border-color: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 22px rgba(8, 51, 20, 0.2);
+}
+
+.pom-month-item.current-month .pom-month-label,
+.pom-month-item.current-month .pom-month-value {
+  color: #fff;
+  font-weight: 800;
 }
 
 @media (max-width: 1280px) {

@@ -1,10 +1,11 @@
 import { FC } from 'react';
-import { useRiverData } from '../../hooks/useRiverData';
+import { usePublicData } from '../../context/PublicDataContext';
 import { RiverCard } from '../../components/RiverCard';
 import { RiverTemperatureChart } from '../../components/RiverTemperatureChart';
+import { DataTimestamp } from '../../components/DataTimestamp';
 
 export const Panel19Dashboard: FC = () => {
-  const { current, monthly, loading, error } = useRiverData();
+  const { river: { current, monthly, loading, error } } = usePublicData();
 
   if (error) {
     return (
@@ -26,6 +27,7 @@ export const Panel19Dashboard: FC = () => {
           className="panel-logo"
         />
         <h1 className="panel-title">RÍOS</h1>
+        <DataTimestamp recordedDate={current?.recorded_date} />
       </header>
 
       <div className="dashboard-grid">

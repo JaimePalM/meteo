@@ -1,9 +1,10 @@
 import { FC } from 'react';
-import { useWeatherData } from '../../hooks/useWeatherData';
+import { usePublicData } from '../../context/PublicDataContext';
 import { TemperatureChart } from '../../components/TemperatureChart';
+import { DataTimestamp } from '../../components/DataTimestamp';
 
 export const Panel4TempChart: FC = () => {
-  const { monthly, loading, error } = useWeatherData();
+  const { weather: { current, monthly, loading, error } } = usePublicData();
 
   if (error) {
     return (
@@ -25,6 +26,7 @@ export const Panel4TempChart: FC = () => {
           className="panel-logo"
         />
         <h1 className="panel-title">METEOESCUELA</h1>
+        <DataTimestamp recordedDate={current?.recorded_date} />
       </header>
 
       <div className="temperature-chart-full">

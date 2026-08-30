@@ -2,9 +2,20 @@ import { FC, useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { adminApi, WeatherData, RiverData, CentinelasData, POMData } from '../services/api';
 
+function filterByDate<T extends { recorded_date: string }>(records: T[], date: string): T[] {
+  return date ? records.filter((record) => record.recorded_date.slice(0, 10) === date) : records;
+}
+
 export const AdminDashboard: FC = () => {
   const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState<'weather' | 'river' | 'centinelas' | 'pom'>('weather');
+  const [historyDateFilter, setHistoryDateFilter] = useState('');
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const notify = (message: string) => {
+    setNotice(message);
+    window.setTimeout(() => setNotice(null), 4000);
+  };
 
   // ─── Weather state ────────────────────────────────────────────────────────
   const [weatherHistory, setWeatherHistory] = useState<WeatherData[]>([]);
@@ -113,7 +124,7 @@ export const AdminDashboard: FC = () => {
       setWeatherFormData({ temperature_max: '', temperature_min: '', humidity: '', pressure: '', precipitation: '', recorded_date: new Date().toISOString().split('T')[0] });
       setWeatherEditingId(null);
       setShowWeatherForm(false);
-      alert('Datos guardados correctamente');
+      notify('Registro meteorológico guardado correctamente.');
       loadWeatherHistory();
     } catch (error: any) {
       alert(error.response?.data?.error || error.message || 'Error al guardar los datos');
@@ -122,7 +133,7 @@ export const AdminDashboard: FC = () => {
 
   const handleWeatherDelete = async (id: number) => {
     if (!confirm('¿Eliminar este registro?')) return;
-    try { await adminApi.deleteWeather(id); loadWeatherHistory(); }
+    try { await adminApi.deleteWeather(id); notify('Registro meteorológico eliminado.'); loadWeatherHistory(); }
     catch { alert('Error al eliminar el registro'); }
   };
 
@@ -164,7 +175,7 @@ export const AdminDashboard: FC = () => {
       setRiverFormData({ temperature: '', calidad_biologica: 'Buena', estado_rio: 'Bueno', bosque_rivera: 'Bueno', recorded_date: new Date().toISOString().split('T')[0] });
       setRiverEditingId(null);
       setShowRiverForm(false);
-      alert('Datos del río guardados correctamente');
+      notify('Registro del río guardado correctamente.');
       loadRiverHistory();
     } catch (error: any) {
       alert(error.response?.data?.error || error.message || 'Error al guardar los datos');
@@ -173,7 +184,7 @@ export const AdminDashboard: FC = () => {
 
   const handleRiverDelete = async (id: number) => {
     if (!confirm('¿Eliminar este registro del río?')) return;
-    try { await adminApi.deleteRiver(id); loadRiverHistory(); }
+    try { await adminApi.deleteRiver(id); notify('Registro del río eliminado.'); loadRiverHistory(); }
     catch { alert('Error al eliminar el registro'); }
   };
 
@@ -216,7 +227,7 @@ export const AdminDashboard: FC = () => {
       setCentinelasFormData({ temperatura_agua: '', flora_invasora: 'Ninguna', residuos: 'Ninguno', efluentes: 'Ninguno', mortandades: 'Ninguna', recorded_date: new Date().toISOString().split('T')[0] });
       setCentinelasEditingId(null);
       setShowCentinelasForm(false);
-      alert('Datos de Centinelas guardados correctamente');
+      notify('Registro de Centinelas guardado correctamente.');
       loadCentinelasHistory();
     } catch (error: any) {
       alert(error.response?.data?.error || error.message || 'Error al guardar los datos');
@@ -225,7 +236,7 @@ export const AdminDashboard: FC = () => {
 
   const handleCentinelasDelete = async (id: number) => {
     if (!confirm('¿Eliminar este registro de Centinelas?')) return;
-    try { await adminApi.deleteCentinelas(id); loadCentinelasHistory(); }
+    try { await adminApi.deleteCentinelas(id); notify('Registro de Centinelas eliminado.'); loadCentinelasHistory(); }
     catch { alert('Error al eliminar el registro'); }
   };
 
@@ -264,7 +275,7 @@ export const AdminDashboard: FC = () => {
       setPOMFormData({ temperatura_mar: '', recorded_date: new Date().toISOString().split('T')[0] });
       setPOMEditingId(null);
       setShowPOMForm(false);
-      alert('Datos de POM guardados correctamente');
+      notify('Registro POM guardado correctamente.');
       loadPOMHistory();
     } catch (error: any) {
       alert(error.response?.data?.error || error.message || 'Error al guardar los datos');
@@ -273,7 +284,7 @@ export const AdminDashboard: FC = () => {
 
   const handlePOMDelete = async (id: number) => {
     if (!confirm('¿Eliminar este registro de POM?')) return;
-    try { await adminApi.deletePOM(id); loadPOMHistory(); }
+    try { await adminApi.deletePOM(id); notify('Registro POM eliminado.'); loadPOMHistory(); }
     catch { alert('Error al eliminar el registro'); }
   };
 
@@ -315,6 +326,7 @@ export const AdminDashboard: FC = () => {
       </div>
 
       <main className="admin-main">
+        {notice && <div className="admin-notice" role="status">{notice}</div>}
 
         {/* ─── Weather Tab ─────────────────────────────────────────────── */}
         {activeTab === 'weather' && (
@@ -371,9 +383,10 @@ export const AdminDashboard: FC = () => {
             <section className="admin-history-section">
               <div className="history-header">
                 <h2>Histórico Meteorológico</h2>
-                <button onClick={loadWeatherHistory} disabled={weatherLoading}>
-                  {weatherLoading ? 'Cargando...' : 'Recargar'}
-                </button>
+                <div className="history-actions">
+                  <label className="history-filter">Fecha <input type="date" value={historyDateFilter} onChange={(event) => setHistoryDateFilter(event.target.value)} /></label>
+                  <button onClick={loadWeatherHistory} disabled={weatherLoading}>{weatherLoading ? 'Cargando...' : 'Recargar'}</button>
+                </div>
               </div>
               <table className="history-table">
                 <thead>
@@ -383,7 +396,7 @@ export const AdminDashboard: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {weatherHistory.length > 0 ? weatherHistory.map((item) => (
+                  {filterByDate(weatherHistory, historyDateFilter).length > 0 ? filterByDate(weatherHistory, historyDateFilter).map((item) => (
                     <tr key={item.id}>
                       <td>{new Date(item.recorded_date).toLocaleDateString('es-ES')}</td>
                       <td>{item.temperature_max}°C</td>
@@ -472,9 +485,10 @@ export const AdminDashboard: FC = () => {
             <section className="admin-history-section">
               <div className="history-header">
                 <h2>Histórico del Río</h2>
-                <button onClick={loadRiverHistory} disabled={riverLoading}>
-                  {riverLoading ? 'Cargando...' : 'Recargar'}
-                </button>
+                <div className="history-actions">
+                  <label className="history-filter">Fecha <input type="date" value={historyDateFilter} onChange={(event) => setHistoryDateFilter(event.target.value)} /></label>
+                  <button onClick={loadRiverHistory} disabled={riverLoading}>{riverLoading ? 'Cargando...' : 'Recargar'}</button>
+                </div>
               </div>
               <table className="history-table">
                 <thead>
@@ -483,7 +497,7 @@ export const AdminDashboard: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {riverHistory.length > 0 ? riverHistory.map((item) => (
+                  {filterByDate(riverHistory, historyDateFilter).length > 0 ? filterByDate(riverHistory, historyDateFilter).map((item) => (
                     <tr key={item.id}>
                       <td>{new Date(item.recorded_date).toLocaleDateString('es-ES')}</td>
                       <td>{parseFloat(item.temperature as unknown as string).toFixed(2)}°C</td>
@@ -576,9 +590,10 @@ export const AdminDashboard: FC = () => {
             <section className="admin-history-section">
               <div className="history-header">
                 <h2>Histórico de Centinelas</h2>
-                <button onClick={loadCentinelasHistory} disabled={centinelasLoading}>
-                  {centinelasLoading ? 'Cargando...' : 'Recargar'}
-                </button>
+                <div className="history-actions">
+                  <label className="history-filter">Fecha <input type="date" value={historyDateFilter} onChange={(event) => setHistoryDateFilter(event.target.value)} /></label>
+                  <button onClick={loadCentinelasHistory} disabled={centinelasLoading}>{centinelasLoading ? 'Cargando...' : 'Recargar'}</button>
+                </div>
               </div>
               <table className="history-table">
                 <thead>
@@ -588,7 +603,7 @@ export const AdminDashboard: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {centinelasHistory.length > 0 ? centinelasHistory.map((item) => (
+                  {filterByDate(centinelasHistory, historyDateFilter).length > 0 ? filterByDate(centinelasHistory, historyDateFilter).map((item) => (
                     <tr key={item.id}>
                       <td>{new Date(item.recorded_date).toLocaleDateString('es-ES')}</td>
                       <td>{parseFloat(item.temperatura_agua as unknown as string).toFixed(2)}°C</td>
@@ -654,9 +669,10 @@ export const AdminDashboard: FC = () => {
             <section className="admin-history-section">
               <div className="history-header">
                 <h2>Histórico POM - Temperatura Mar</h2>
-                <button onClick={loadPOMHistory} disabled={pomLoading}>
-                  {pomLoading ? 'Cargando...' : 'Recargar'}
-                </button>
+                <div className="history-actions">
+                  <label className="history-filter">Fecha <input type="date" value={historyDateFilter} onChange={(event) => setHistoryDateFilter(event.target.value)} /></label>
+                  <button onClick={loadPOMHistory} disabled={pomLoading}>{pomLoading ? 'Cargando...' : 'Recargar'}</button>
+                </div>
               </div>
               <table className="history-table">
                 <thead>
@@ -665,7 +681,7 @@ export const AdminDashboard: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {pomHistory.length > 0 ? pomHistory.map((item) => (
+                  {filterByDate(pomHistory, historyDateFilter).length > 0 ? filterByDate(pomHistory, historyDateFilter).map((item) => (
                     <tr key={item.id}>
                       <td>{new Date(item.recorded_date).toLocaleDateString('es-ES')}</td>
                       <td>{parseFloat(item.temperatura_mar as unknown as string).toFixed(2)}°C</td>

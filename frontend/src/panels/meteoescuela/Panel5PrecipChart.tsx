@@ -1,9 +1,10 @@
 import { FC } from 'react';
-import { useWeatherData } from '../../hooks/useWeatherData';
+import { usePublicData } from '../../context/PublicDataContext';
 import { PrecipitationChart } from '../../components/PrecipitationChart';
+import { DataTimestamp } from '../../components/DataTimestamp';
 
 export const Panel5PrecipChart: FC = () => {
-  const { monthly, loading, error } = useWeatherData();
+  const { weather: { current, monthly, loading, error } } = usePublicData();
 
   if (error) {
     return (
@@ -25,11 +26,12 @@ export const Panel5PrecipChart: FC = () => {
           className="panel-logo"
         />
         <h1 className="panel-title">METEOESCUELA</h1>
+        <DataTimestamp recordedDate={current?.recorded_date} />
       </header>
 
       <div className="temperature-chart-full">
         <div className="dashboard-section precipitation">
-          <PrecipitationChart data={monthly} loading={loading} height={400} fillContainer={true} />
+          <PrecipitationChart data={monthly} loading={loading} height={400} />
         </div>
       </div>
     </div>

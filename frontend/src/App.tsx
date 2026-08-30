@@ -17,6 +17,7 @@ import { Panel17Logos } from './panels/rios/Panel17Logos';
 import { Panel18Placeholder } from './panels/rios/Panel18Placeholder';
 import { Panel19Dashboard } from './panels/rios/Panel19Dashboard';
 import { Panel20Placeholder } from './panels/rios/Panel20Placeholder';
+import { PublicDataProvider } from './context/PublicDataContext';
 import './App.css';
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
         <Route
           path="/"
           element={
+            <PublicDataProvider>
             <Carousel interval={10000} autoPlay={autoPlay} panelNames={panelNames}>
               <Panel1Logo key={refreshKey} />
               <Panel2 />
@@ -58,6 +60,7 @@ function App() {
               <Panel19Dashboard />
               <Panel20Placeholder />
             </Carousel>
+            </PublicDataProvider>
           }
         />
 

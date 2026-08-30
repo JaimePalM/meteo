@@ -1,9 +1,10 @@
 import { FC } from 'react';
-import { useCentinelasData } from '../../hooks/useCentinelasData';
+import { usePublicData } from '../../context/PublicDataContext';
 import { SimpleLineChart } from '../../components/LineChart';
+import { DataTimestamp } from '../../components/DataTimestamp';
 
 export const Panel13Dashboard: FC = () => {
-  const { current, monthly, loading, error } = useCentinelasData();
+  const { centinelas: { current, monthly, loading, error } } = usePublicData();
 
   if (error) {
     return (
@@ -63,6 +64,7 @@ export const Panel13Dashboard: FC = () => {
           className="panel-logo"
         />
         <h1 className="panel-title">CENTINELAS</h1>
+        <DataTimestamp recordedDate={current.recorded_date} />
       </header>
 
       <div className="panel-split-content">
@@ -132,7 +134,7 @@ export const Panel13Dashboard: FC = () => {
           <div className="dashboard-section chart">
             <h3>📈 Evolución Temperatura Agua (30 días)</h3>
             <div className="chart-container full-width-chart">
-              <SimpleLineChart data={chartData} color="#9F7AEA" yAxisLabel="°C" fillContainer={true} />
+              <SimpleLineChart data={chartData} color="#7655b6" yAxisLabel="°C" />
             </div>
           </div>
         </div>

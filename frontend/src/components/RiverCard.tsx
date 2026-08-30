@@ -28,19 +28,12 @@ const getRiverColor = (temp: number): string => {
 };
 
 export const RiverCard: FC<RiverCardProps> = ({ data, loading }) => {
-  const today = new Date().toLocaleDateString('es-ES', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
   if (loading) {
     return (
       <div className="weather-card">
         <div className="weather-header">
           <h2>Temperatura del Río</h2>
-          <p>{today}</p>
+          <p>Cargando última medición…</p>
         </div>
         <p>Cargando datos meteorológicos...</p>
       </div>
@@ -52,7 +45,7 @@ export const RiverCard: FC<RiverCardProps> = ({ data, loading }) => {
       <div className="weather-card">
         <div className="weather-header">
           <h2>Temperatura del Río</h2>
-          <p>{today}</p>
+          <p>Sin mediciones disponibles</p>
         </div>
         <p>Sin datos disponibles</p>
       </div>
@@ -99,7 +92,7 @@ export const RiverCard: FC<RiverCardProps> = ({ data, loading }) => {
           <span className="river-info-value">{data.estado_rio || 'Bueno'}</span>
         </div>
         <div className="river-info-item">
-          <span className="river-info-label">Bosque de rivera</span>
+          <span className="river-info-label">Bosque de ribera</span>
           <span className="river-info-value">{data.bosque_rivera || 'Bueno'}</span>
         </div>
         <div className="river-info-item">

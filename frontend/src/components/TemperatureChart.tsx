@@ -1,6 +1,7 @@
 import { FC } from 'react';
-import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { WeatherData } from '../services/api';
+import { formatChartDate, temperatureDomain, toFiniteNumber, uniqueDailyRecords } from '../utils/chartUtils';
 
 interface TemperatureChartProps {
   data: WeatherData[];
@@ -9,119 +10,48 @@ interface TemperatureChartProps {
 }
 
 export const TemperatureChart: FC<TemperatureChartProps> = ({ data, loading, height = 400 }) => {
-  if (loading) {
-    return <div className="chart-container" style={{ height }}><p>Cargando...</p></div>;
-  }
+  if (loading) return <div className="chart-container" style={{ height }}><p>Cargando...</p></div>;
+  if (!Array.isArray(data) || data.length === 0) return <div className="chart-container" style={{ height }}><p>Sin datos</p></div>;
 
-  if (!Array.isArray(data) || data.length === 0) {
-    return <div className="chart-container" style={{ height }}><p>Sin datos</p></div>;
-  }
+  const chartData = uniqueDailyRecords(data)
+    .map((item) => ({
+      date: formatChartDate(item.recorded_date, { month: 'short', day: 'numeric' }),
+      temp_max: toFiniteNumber(item.temperature_max),
+      temp_min: toFiniteNumber(item.temperature_min),
+      precipitation: toFiniteNumber(item.precipitation),
+    }))
+    .filter((item) => item.temp_max !== null || item.temp_min !== null || item.precipitation !== null);
 
-  const chartData = data.map((item) => {
-    const maxTemp = typeof item.temperature_max === 'string' ? parseFloat(item.temperature_max) : item.temperature_max;
-    const minTemp = typeof item.temperature_min === 'string' ? parseFloat(item.temperature_min) : item.temperature_min;
-    const precipValue = typeof item.precipitation === 'string' ? parseFloat(item.precipitation) : item.precipitation;
-    return {
-      date: new Date(item.recorded_date).toLocaleDateString('es-ES', {
-        month: 'short',
-        day: 'numeric',
-      }),
-      temp_max: maxTemp,
-      temp_min: minTemp,
-      precipitation: precipValue,
-    };
-  });
+  if (chartData.length === 0) return <div className="chart-container" style={{ height }}><p>Sin valores válidos para representar</p></div>;
 
-  // Calculate temp range for nice tick intervals
-  const temps = chartData.flatMap(d => [d.temp_max, d.temp_min]);
-  const minTemp = Math.min(...temps);
-  const maxTemp = Math.max(...temps);
-  const range = maxTemp - minTemp;
-  const tickInterval = range > 20 ? 10 : range > 10 ? 5 : 2;
-  
-  // Calculate nice domain bounds
-  const domainMin = Math.floor((minTemp - 2) / tickInterval) * tickInterval;
-  const domainMax = Math.ceil((maxTemp + 2) / tickInterval) * tickInterval;
-  
-  // Generate explicit tick values
-  const ticks = [];
-  for (let v = domainMin; v <= domainMax; v += tickInterval) {
-    ticks.push(v);
-  }
+  const [domainMin, domainMax] = temperatureDomain(
+    chartData.flatMap(({ temp_max, temp_min }) => [temp_max ?? Number.NaN, temp_min ?? Number.NaN]),
+  );
 
   return (
-    <div className="chart-container temperature-chart" style={{ height: '100%', minHeight: height }}>
-      <h3>📊 Temperatura & Precipitación (30 días)</h3>
-      <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={chartData} margin={{ top: 5, right: 60, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
-          <XAxis 
-            dataKey="date" 
-            tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.9)' }}
-            tickLine={false}
-            axisLine={{ stroke: 'rgba(255,255,255,0.3)' }}
-          />
-          <YAxis 
-            yAxisId="left"
-            domain={[domainMin, domainMax]}
-            ticks={ticks}
-            tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.9)' }}
-            tickFormatter={(value) => `${value}`}
-            tickLine={false}
-            axisLine={{ stroke: 'rgba(255,255,255,0.3)' }}
-            label={{ value: '°C', angle: -90, position: 'insideLeft', offset: 10, fontSize: 11, fill: 'rgba(255,255,255,0.7)' }}
-          />
-          <YAxis 
-            yAxisId="right"
-            orientation="right"
-            tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.9)' }}
-            tickLine={false}
-            axisLine={{ stroke: 'rgba(255,255,255,0.3)' }}
-            label={{ value: 'mm', angle: 90, position: 'insideRight', offset: -10, fontSize: 11, fill: 'rgba(255,255,255,0.7)' }}
-          />
-          <Tooltip
-            contentStyle={{ 
-              backgroundColor: 'rgba(30,30,30,0.95)', 
-              border: '1px solid rgba(255,255,255,0.2)',
-              borderRadius: '8px',
-              color: 'white'
-            }}
-            formatter={(value, name) => {
-              if (name === 'precipitation') {
-                return [`${(typeof value === 'number' ? value : parseFloat(value as string)).toFixed(1)} mm`, 'Precipitación'];
-              }
-              return [`${(typeof value === 'number' ? value : parseFloat(value as string)).toFixed(1)}°C`, 'Temperatura'];
-            }}
-            labelFormatter={(label: string) => label}
-          />
-          <Line 
-            yAxisId="left"
-            type="monotone" 
-            dataKey="temp_max" 
-            stroke="#FF6B6B" 
-            dot={false} 
-            strokeWidth={2}
-            name="Máx"
-          />
-          <Line 
-            yAxisId="left"
-            type="monotone" 
-            dataKey="temp_min" 
-            stroke="#4ECDC4" 
-            dot={false} 
-            strokeWidth={2}
-            name="Mín"
-          />
-          <Bar 
-            yAxisId="right"
-            dataKey="precipitation" 
-            fill="#6C5CE7"
-            radius={[4, 4, 0, 0]}
-            opacity={0.7}
-            name="Lluvia"
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
+    <div className="chart-container temperature-chart" style={{ minHeight: height }}>
+      <h3>Temperatura y precipitación · últimos 30 días</h3>
+      <div className="chart-canvas">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
+            <CartesianGrid stroke="#dce4ea" strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="date" minTickGap={24} tick={{ fontSize: 11, fill: '#536471' }} tickLine={false} axisLine={{ stroke: '#cbd5df' }} />
+            <YAxis yAxisId="left" domain={[domainMin, domainMax]} tick={{ fontSize: 11, fill: '#536471' }} tickFormatter={(value) => `${value}°`} tickLine={false} axisLine={false} width={40} />
+            <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#536471' }} tickFormatter={(value) => `${value} mm`} tickLine={false} axisLine={false} width={54} />
+            <Tooltip
+              contentStyle={{ backgroundColor: '#fff', border: '1px solid #d5dee5', borderRadius: '8px', color: '#1f2d38' }}
+              labelStyle={{ color: '#536471', fontWeight: 600 }}
+              formatter={(value, name) => {
+                const numericValue = typeof value === 'number' ? value : Number.parseFloat(String(value));
+                return [name === 'Lluvia' ? `${numericValue.toFixed(1)} mm` : `${numericValue.toFixed(1)} °C`, name];
+              }}
+            />
+            <Bar yAxisId="right" dataKey="precipitation" fill="#437bc0" radius={[4, 4, 0, 0]} opacity={0.72} name="Lluvia" isAnimationActive={false} />
+            <Line yAxisId="left" type="monotone" dataKey="temp_max" stroke="#dc5a55" dot={false} strokeWidth={2.5} name="Máxima" isAnimationActive={false} />
+            <Line yAxisId="left" type="monotone" dataKey="temp_min" stroke="#16828a" dot={false} strokeWidth={2.5} name="Mínima" isAnimationActive={false} />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };

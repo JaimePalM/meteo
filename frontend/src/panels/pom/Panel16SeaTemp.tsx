@@ -1,9 +1,10 @@
 import { FC } from 'react';
-import { usePOMData } from '../../hooks/usePOMData';
+import { usePublicData } from '../../context/PublicDataContext';
 import { SimpleLineChart } from '../../components/LineChart';
+import { DataTimestamp } from '../../components/DataTimestamp';
 
 export const Panel16SeaTemp: FC = () => {
-  const { monthly, loading, error } = usePOMData();
+  const { pom: { monthly, loading, error } } = usePublicData();
 
   // Get last 12 months (one per month)
   const getMonthlyData = (data: any[]) => {
@@ -85,6 +86,7 @@ export const Panel16SeaTemp: FC = () => {
           className="panel-logo"
         />
         <h1 className="panel-title">POM</h1>
+        <DataTimestamp recordedDate={monthlyData[monthlyData.length - 1]?.recorded_date} />
       </header>
 
       <div className="panel-split-content">
@@ -96,8 +98,14 @@ export const Panel16SeaTemp: FC = () => {
                 <h2>🌊 Temperatura del Mar - Últimos 12 Meses</h2>
               </div>
               <div className="pom-grid-12">
-                {monthlyData.map((item) => (
-                  <div key={item.id} className="pom-month-item">
+                {monthlyData.map((item) => {
+                  const measurementDate = new Date(item.recorded_date);
+                  const today = new Date();
+                  const isCurrentMonth = measurementDate.getUTCFullYear() === today.getFullYear()
+                    && measurementDate.getUTCMonth() === today.getMonth();
+
+                  return (
+                  <div key={item.id} className={`pom-month-item ${isCurrentMonth ? 'current-month' : ''}`} aria-current={isCurrentMonth ? 'date' : undefined}>
                     <span className="pom-month-label">
                       {new Date(item.recorded_date).toLocaleDateString('es-ES', {
                         month: 'short',
@@ -108,7 +116,8 @@ export const Panel16SeaTemp: FC = () => {
                       {typeof item.temperatura_mar === 'string' ? parseFloat(item.temperatura_mar) : item.temperatura_mar}°C
                     </span>
                   </div>
-                ))}
+                  );
+                })}
                 {monthlyData.length === 0 && (
                   <div className="pom-empty" style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'rgba(255,255,255,0.7)' }}>
                     No hay datos disponibles
@@ -124,7 +133,7 @@ export const Panel16SeaTemp: FC = () => {
           <div className="dashboard-section chart">
             <h3>📈 Evolución Temperatura Mar (12 meses)</h3>
             <div className="chart-container full-width-chart">
-              <SimpleLineChart data={chartData} color="#43A047" yAxisLabel="°C" fillContainer={true} />
+              <SimpleLineChart data={chartData} color="#278145" yAxisLabel="°C" />
             </div>
           </div>
         </div>
