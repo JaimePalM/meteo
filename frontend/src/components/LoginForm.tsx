@@ -1,4 +1,5 @@
 import { FC, useState } from 'react';
+import { authApi } from '../services/api';
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -16,22 +17,16 @@ export const LoginForm: FC<LoginFormProps> = ({ onSuccess }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Credenciales inválidas');
-      }
-
-      const data = await response.json();
+      const { data } = await authApi.login(username, password);
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      if (err instanceof Error && 'response' in err) {
+        setError('Credenciales inválidas');
+      } else {
+        setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      }
     } finally {
       setLoading(false);
     }
