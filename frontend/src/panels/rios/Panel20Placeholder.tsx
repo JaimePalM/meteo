@@ -4,7 +4,7 @@ import { FullScreenImage } from '../../components/FullScreenImage';
 export const Panel20Placeholder: FC = () => {
   return (
     <FullScreenImage 
-      src="/rios-panel20-placeholder.jpg" 
+      src="/rios-20.jpg" 
       alt="Ríos - Panel 20"
       className="rios-panel"
     />
