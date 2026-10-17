@@ -236,8 +236,8 @@ router.post('/centinelas', async (req: Request, res: Response) => {
     if (isNaN(temp)) {
       return res.status(400).json({ error: 'Invalid temperatura_agua value' });
     }
-    if (await centinelasService.hasRecordForAcademicYear(recorded_date)) {
-      return res.status(409).json({ error: 'Solo puede existir una observación de Centinelas por curso escolar.' });
+    if (await centinelasService.hasReachedAcademicYearLimit(recorded_date)) {
+      return res.status(409).json({ error: 'Solo pueden existir dos observaciones de Centinelas por curso escolar.' });
     }
     const result = await centinelasService.createCentinelasRecord({ 
       temperatura_agua: temp, 
@@ -267,8 +267,8 @@ router.put('/centinelas/:id', async (req: Request, res: Response) => {
     if (efluentes) updateData.efluentes = efluentes;
     if (mortandades) updateData.mortandades = mortandades;
 
-    if (recorded_date && await centinelasService.hasRecordForAcademicYear(recorded_date, parseInt(id))) {
-      return res.status(409).json({ error: 'Solo puede existir una observación de Centinelas por curso escolar.' });
+    if (recorded_date && await centinelasService.hasReachedAcademicYearLimit(recorded_date, parseInt(id))) {
+      return res.status(409).json({ error: 'Solo pueden existir dos observaciones de Centinelas por curso escolar.' });
     }
 
     const result = await centinelasService.updateCentinelasRecord(parseInt(id), updateData);

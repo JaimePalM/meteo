@@ -8,6 +8,7 @@ export const Panel1Logo: FC = () => {
       alt="Meteoescuela - Logo Calasanz"
       className="meteoescuela-panel"
       panelId="panel-1"
+      showCalasanzLogo={false}
     />
   );
 };

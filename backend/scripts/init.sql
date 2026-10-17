@@ -109,59 +109,30 @@ SELECT
 FROM generate_series(0, 29) AS t(n)
 ON CONFLICT DO NOTHING;
 
--- Insert sample river temperature data (monthly - last 12 months)
+-- Ríos: two observations per academic year, in October and May.
+WITH academic_year AS (
+  SELECT CASE WHEN EXTRACT(MONTH FROM CURRENT_DATE) >= 8 THEN EXTRACT(YEAR FROM CURRENT_DATE)::int ELSE EXTRACT(YEAR FROM CURRENT_DATE)::int - 1 END AS start_year
+)
 INSERT INTO river_data (temperature, calidad_biologica, estado_rio, bosque_rivera, recorded_date)
-SELECT
-    ROUND((RANDOM() * 8 + 13)::numeric, 2),
-    CASE (RANDOM() * 3)::int
-        WHEN 0 THEN 'Muy buena'
-        WHEN 1 THEN 'Buena'
-        ELSE 'Regular'
-    END,
-    CASE (RANDOM() * 3)::int
-        WHEN 0 THEN 'Muy bueno'
-        WHEN 1 THEN 'Bueno'
-        ELSE 'Regular'
-    END,
-    CASE (RANDOM() * 3)::int
-        WHEN 0 THEN 'Muy bueno'
-        WHEN 1 THEN 'Bueno'
-        ELSE 'Regular'
-    END,
-    (DATE_TRUNC('month', CURRENT_DATE) - (n || ' months')::interval)::DATE
-FROM generate_series(0, 11) AS t(n)
+SELECT temperature, calidad, estado, bosque, measured_on
+FROM academic_year,
+  (VALUES
+    (15.8::numeric, 'Buena', 'Bueno', 'Bueno', make_date((SELECT start_year FROM academic_year) - 1, 10, 20)),
+    (17.1::numeric, 'Muy buena', 'Muy bueno', 'Bueno', make_date((SELECT start_year FROM academic_year), 5, 15))
+  ) AS samples(temperature, calidad, estado, bosque, measured_on)
 ON CONFLICT DO NOTHING;
 
--- Insert sample centinelas data for the last 30 days (daily)
+-- Centinelas: two observations per academic year.
+WITH academic_year AS (
+  SELECT CASE WHEN EXTRACT(MONTH FROM CURRENT_DATE) >= 8 THEN EXTRACT(YEAR FROM CURRENT_DATE)::int ELSE EXTRACT(YEAR FROM CURRENT_DATE)::int - 1 END AS start_year
+)
 INSERT INTO centinelas_data (temperatura_agua, flora_invasora, residuos, efluentes, mortandades, recorded_date)
-SELECT
-    ROUND((RANDOM() * 10 + 10)::numeric, 2),
-    CASE (RANDOM() * 4)::int
-        WHEN 0 THEN 'Ninguna'
-        WHEN 1 THEN 'Poca'
-        WHEN 2 THEN 'Moderada'
-        ELSE 'Mucha'
-    END,
-    CASE (RANDOM() * 4)::int
-        WHEN 0 THEN 'Ninguno'
-        WHEN 1 THEN 'Pocos'
-        WHEN 2 THEN 'Moderados'
-        ELSE 'Muchos'
-    END,
-    CASE (RANDOM() * 4)::int
-        WHEN 0 THEN 'Ninguno'
-        WHEN 1 THEN 'Leves'
-        WHEN 2 THEN 'Moderados'
-        ELSE 'Severos'
-    END,
-    CASE (RANDOM() * 4)::int
-        WHEN 0 THEN 'Ninguna'
-        WHEN 1 THEN 'Baja'
-        WHEN 2 THEN 'Media'
-        ELSE 'Alta'
-    END,
-    CURRENT_DATE - (n || ' days')::interval
-FROM generate_series(0, 29) AS t(n)
+SELECT temperatura, flora, residuos, efluentes, mortandades, measured_on
+FROM academic_year,
+  (VALUES
+    (14.6::numeric, 'Poca', 'Pocos', 'Ninguno', 'Ninguna', GREATEST(make_date((SELECT start_year FROM academic_year), 8, 1), CURRENT_DATE - 21)::date),
+    (17.3::numeric, 'Moderada', 'Pocos', 'Leves', 'Ninguna', CURRENT_DATE)
+  ) AS samples(temperatura, flora, residuos, efluentes, mortandades, measured_on)
 ON CONFLICT DO NOTHING;
 
 -- Insert sample POM sea temperature data (monthly - last 12 months)

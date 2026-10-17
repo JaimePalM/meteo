@@ -7,9 +7,16 @@ interface FullScreenImageProps {
   className?: string;
   cover?: boolean;
   panelId?: string;
+  showCalasanzLogo?: boolean;
 }
 
-export const FullScreenImage: FC<FullScreenImageProps> = ({ src, alt, className = '', panelId }) => {
+export const FullScreenImage: FC<FullScreenImageProps> = ({
+  src,
+  alt,
+  className = '',
+  panelId,
+  showCalasanzLogo = true,
+}) => {
   const { carousel } = usePublicData();
   const image = panelId ? carousel.images.find((asset) => asset.panelId === panelId) : undefined;
   const imageSrc = image ? `/api/carousel/images/${panelId}?v=${image.version}` : src;
@@ -20,6 +27,9 @@ export const FullScreenImage: FC<FullScreenImageProps> = ({ src, alt, className 
         alt={alt} 
         className="fullscreen-image"
       />
+      {showCalasanzLogo && (
+        <img src="/logo-calasanz.png" alt="Logo Calasanz Santander" className="slide-calasanz-logo" />
+      )}
     </div>
   );
 };

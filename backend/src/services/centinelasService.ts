@@ -18,17 +18,16 @@ const EFLUENTES_OPTIONS = ['Ninguno', 'Leves', 'Moderados', 'Severos'];
 const MORTANDADES_OPTIONS = ['Ninguna', 'Baja', 'Media', 'Alta'];
 
 export class CentinelasService {
-  async hasRecordForAcademicYear(recordedDate: string, excludeId?: number): Promise<boolean> {
+  async hasReachedAcademicYearLimit(recordedDate: string, excludeId?: number): Promise<boolean> {
     const date = new Date(`${recordedDate}T00:00:00Z`);
     const courseStartYear = date.getUTCMonth() >= 7 ? date.getUTCFullYear() : date.getUTCFullYear() - 1;
     const result = await pool.query(
-      `SELECT 1 FROM centinelas_data
+      `SELECT COUNT(*)::int AS count FROM centinelas_data
        WHERE recorded_date >= $1::date AND recorded_date < $2::date
-       AND ($3::integer IS NULL OR id <> $3)
-       LIMIT 1`,
+       AND ($3::integer IS NULL OR id <> $3)`,
       [`${courseStartYear}-08-01`, `${courseStartYear + 1}-08-01`, excludeId ?? null],
     );
-    return (result.rowCount ?? 0) > 0;
+    return result.rows[0].count >= 2;
   }
   async getCurrentCentinelas(): Promise<CentinelasData | null> {
     try {
@@ -46,7 +45,12 @@ export class CentinelasService {
     try {
       const result = await pool.query(
         `SELECT * FROM centinelas_data
-         WHERE recorded_date >= CURRENT_DATE - INTERVAL '30 days'
+         WHERE recorded_date >= (CASE WHEN EXTRACT(MONTH FROM CURRENT_DATE) >= 8
+           THEN make_date(EXTRACT(YEAR FROM CURRENT_DATE)::int, 8, 1)
+           ELSE make_date(EXTRACT(YEAR FROM CURRENT_DATE)::int - 1, 8, 1) END)
+         AND recorded_date < (CASE WHEN EXTRACT(MONTH FROM CURRENT_DATE) >= 8
+           THEN make_date(EXTRACT(YEAR FROM CURRENT_DATE)::int + 1, 8, 1)
+           ELSE make_date(EXTRACT(YEAR FROM CURRENT_DATE)::int, 8, 1) END)
          ORDER BY recorded_date ASC`
       );
       return result.rows;

@@ -613,7 +613,7 @@ export const AdminDashboard: FC = () => {
               {showCentinelasForm && (
                 <form onSubmit={handleCentinelasSubmit} className="weather-form">
                   <h2>{centinelasEditingId ? 'Editar Registro' : 'Nuevo Registro Centinelas'}</h2>
-                  <p className="form-help">Solo se admite una observación de Centinelas por curso escolar.</p>
+                  <p className="form-help">Cada curso escolar admite hasta dos observaciones de Centinelas.</p>
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="c-date">Fecha</label>

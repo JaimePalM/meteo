@@ -1183,6 +1183,19 @@
   object-position: center;
 }
 
+.slide-calasanz-logo {
+  position: absolute;
+  top: clamp(14px, 2vw, 32px);
+  left: clamp(14px, 2vw, 32px);
+  z-index: 2;
+  width: auto;
+  height: clamp(42px, 5vw, 78px);
+  max-width: min(240px, 28vw);
+  object-fit: contain;
+  filter: drop-shadow(0 2px 7px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+}
+
 /* Panel 2 - Two images side by side */
 .panel2-dual .panel2-images {
   display: flex;
@@ -1594,6 +1607,93 @@
 
 .centinelas-data-panel .centinelas-value {
   font-size: clamp(24px, 2.5vw, 38px);
+}
+
+.centinelas-observations {
+  width: min(1800px, 100%);
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 30px);
+  min-height: 0;
+}
+
+.centinelas-observation {
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(18px, 2vw, 32px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 28px rgba(41, 21, 88, 0.18);
+  overflow: hidden;
+}
+
+.centinelas-observation-header {
+  margin-bottom: clamp(12px, 1.5vw, 22px);
+  color: white;
+}
+
+.centinelas-observation-header h2 {
+  margin: 0;
+  font-size: clamp(22px, 2vw, 34px);
+}
+
+.centinelas-observation-header span {
+  display: block;
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+.centinelas-observation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(10px, 1vw, 16px);
+}
+
+.centinelas-observation .centinelas-item {
+  min-width: 0;
+  min-height: 82px;
+  padding: clamp(12px, 1.2vw, 18px);
+}
+
+.centinelas-observation .centinelas-emoji {
+  min-width: 36px;
+  font-size: clamp(28px, 2.2vw, 38px);
+}
+
+.centinelas-observation .centinelas-content {
+  min-width: 0;
+}
+
+.centinelas-observation .centinelas-label {
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+
+.centinelas-observation .centinelas-value {
+  overflow-wrap: anywhere;
+  font-size: clamp(18px, 1.7vw, 27px);
+}
+
+@media (max-width: 1300px) {
+  .centinelas-observation-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .centinelas-observations {
+    height: auto;
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .centinelas-observation-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .panel-loading,
