@@ -127,6 +127,16 @@ router.delete('/weather/:id', async (req: Request, res: Response) => {
   }
 });
 
+router.delete('/weather', async (_req: Request, res: Response) => {
+  try {
+    const deleted = await weatherService.deleteAllWeatherRecords();
+    res.json({ deleted, message: 'Histórico meteorológico eliminado.' });
+  } catch (error) {
+    console.error('[ADMIN-WEATHER-DELETE-ALL] Error:', error);
+    res.status(500).json({ error: 'No se pudo eliminar el histórico meteorológico.' });
+  }
+});
+
 // ─── River Admin Routes ───────────────────────────────────────────────────────
 
 // GET /api/admin/river/history
@@ -211,6 +221,16 @@ router.delete('/river/:id', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[ADMIN-RIVER-DELETE] Error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.delete('/river', async (_req: Request, res: Response) => {
+  try {
+    const deleted = await riverService.deleteAllRiverRecords();
+    res.json({ deleted, message: 'Histórico de Ríos eliminado.' });
+  } catch (error) {
+    console.error('[ADMIN-RIVER-DELETE-ALL] Error:', error);
+    res.status(500).json({ error: 'No se pudo eliminar el histórico de Ríos.' });
   }
 });
 
@@ -376,6 +396,16 @@ router.delete('/pom/:id', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[ADMIN-POM-DELETE] Error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.delete('/pom', async (_req: Request, res: Response) => {
+  try {
+    const deleted = await pomService.deleteAllPOMRecords();
+    res.json({ deleted, message: 'Histórico POM eliminado.' });
+  } catch (error) {
+    console.error('[ADMIN-POM-DELETE-ALL] Error:', error);
+    res.status(500).json({ error: 'No se pudo eliminar el histórico POM.' });
   }
 });
 

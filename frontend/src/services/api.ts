@@ -2,6 +2,8 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
+export const getApiUrl = (path: string) => `${API_URL.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
+
 console.log('[API] Initializing with base URL:', API_URL);
 
 export const api = axios.create({
@@ -146,6 +148,7 @@ export const adminApi = {
   updateWeather: (id: number, data: Partial<WeatherData>) =>
     api.put<WeatherData>(`/admin/weather/${id}`, data),
   deleteWeather: (id: number) => api.delete(`/admin/weather/${id}`),
+  deleteAllWeather: () => api.delete<{ deleted: number }>('/admin/weather'),
 
   getRiverHistory: () => api.get<RiverData[]>('/admin/river/history'),
   createRiver: (data: Omit<RiverData, 'id' | 'created_at' | 'updated_at'>) =>
@@ -153,6 +156,7 @@ export const adminApi = {
   updateRiver: (id: number, data: Partial<RiverData>) =>
     api.put<RiverData>(`/admin/river/${id}`, data),
   deleteRiver: (id: number) => api.delete(`/admin/river/${id}`),
+  deleteAllRiver: () => api.delete<{ deleted: number }>('/admin/river'),
 
   getCentinelasHistory: () => api.get<CentinelasData[]>('/admin/centinelas/history'),
   createCentinelas: (data: Omit<CentinelasData, 'id' | 'created_at' | 'updated_at'>) =>
@@ -168,6 +172,7 @@ export const adminApi = {
   updatePOM: (id: number, data: Partial<POMData>) =>
     api.put<POMData>(`/admin/pom/${id}`, data),
   deletePOM: (id: number) => api.delete(`/admin/pom/${id}`),
+  deleteAllPOM: () => api.delete<{ deleted: number }>('/admin/pom'),
 
   getCarouselImages: () => api.get<Array<{ panel_id: string; content_type: string; updated_at: string }>>('/admin/carousel/images'),
   getCarouselSettings: () => api.get<CarouselSettings>('/carousel/settings'),

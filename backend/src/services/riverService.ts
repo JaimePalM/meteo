@@ -135,4 +135,14 @@ export class RiverService {
       throw error;
     }
   }
+
+  async deleteAllRiverRecords(): Promise<number> {
+    try {
+      const result = await pool.query('DELETE FROM river_data');
+      return result.rowCount ?? 0;
+    } catch (error) {
+      console.error('Error deleting all river records:', error);
+      throw error;
+    }
+  }
 }

@@ -126,4 +126,14 @@ export class WeatherService {
       throw error;
     }
   }
+
+  async deleteAllWeatherRecords(): Promise<number> {
+    try {
+      const result = await pool.query('DELETE FROM weather_data');
+      return result.rowCount ?? 0;
+    } catch (error) {
+      console.error('Error deleting all weather records:', error);
+      throw error;
+    }
+  }
 }

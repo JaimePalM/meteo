@@ -217,6 +217,28 @@ export const AdminDashboard: FC = () => {
     catch { alert('Error al eliminar el registro'); }
   };
 
+  const confirmDeleteAll = (label: string) => {
+    if (!window.confirm(`Se eliminarán todos los registros de ${label}. Esta acción no se puede deshacer. ¿Quieres continuar?`)) return false;
+    if (window.prompt(`Segunda confirmación: escribe BORRAR para eliminar todo el histórico de ${label}.`) !== 'BORRAR') {
+      alert('El histórico no se ha eliminado.');
+      return false;
+    }
+    return true;
+  };
+
+  const handleDeleteAllWeather = async () => {
+    if (!confirmDeleteAll('Meteorología')) return;
+    try {
+      const response = await adminApi.deleteAllWeather();
+      setWeatherHistory([]);
+      setShowWeatherForm(false);
+      setWeatherEditingId(null);
+      notify(`Se han eliminado ${response.data.deleted} registros meteorológicos.`);
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'No se ha podido eliminar el histórico meteorológico.');
+    }
+  };
+
   // ─── River handlers ───────────────────────────────────────────────────────
   const loadRiverHistory = async () => {
     try {
@@ -272,6 +294,19 @@ export const AdminDashboard: FC = () => {
     catch { alert('Error al eliminar el registro'); }
   };
 
+  const handleDeleteAllRiver = async () => {
+    if (!confirmDeleteAll('Ríos')) return;
+    try {
+      const response = await adminApi.deleteAllRiver();
+      setRiverHistory([]);
+      setShowRiverForm(false);
+      setRiverEditingId(null);
+      notify(`Se han eliminado ${response.data.deleted} registros de Ríos.`);
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'No se ha podido eliminar el histórico de Ríos.');
+    }
+  };
+
   // ─── Centinelas handlers ──────────────────────────────────────────────────
   const loadCentinelasHistory = async () => {
     try {
@@ -325,11 +360,7 @@ export const AdminDashboard: FC = () => {
   };
 
   const handleDeleteAllCentinelas = async () => {
-    if (!window.confirm('Se eliminarán todos los registros de Centinelas. Esta acción no se puede deshacer. ¿Quieres continuar?')) return;
-    if (window.prompt('Segunda confirmación: escribe BORRAR para eliminar todo el histórico de Centinelas.') !== 'BORRAR') {
-      alert('El histórico no se ha eliminado.');
-      return;
-    }
+    if (!confirmDeleteAll('Centinelas')) return;
     try {
       const response = await adminApi.deleteAllCentinelas();
       setCentinelasHistory([]);
@@ -387,6 +418,19 @@ export const AdminDashboard: FC = () => {
     if (!confirm('¿Eliminar este registro de POM?')) return;
     try { await adminApi.deletePOM(id); notify('Registro POM eliminado.'); loadPOMHistory(); }
     catch { alert('Error al eliminar el registro'); }
+  };
+
+  const handleDeleteAllPOM = async () => {
+    if (!confirmDeleteAll('POM')) return;
+    try {
+      const response = await adminApi.deleteAllPOM();
+      setPOMHistory([]);
+      setShowPOMForm(false);
+      setPOMEditingId(null);
+      notify(`Se han eliminado ${response.data.deleted} registros POM.`);
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'No se ha podido eliminar el histórico POM.');
+    }
   };
 
   return (
@@ -490,6 +534,7 @@ export const AdminDashboard: FC = () => {
                 <div className="history-actions">
                   <label className="history-filter">Fecha <input type="date" value={historyDateFilter} onChange={(event) => setHistoryDateFilter(event.target.value)} /></label>
                   <button onClick={loadWeatherHistory} disabled={weatherLoading}>{weatherLoading ? 'Cargando...' : 'Recargar'}</button>
+                  <button className="btn-danger-history" onClick={handleDeleteAllWeather} disabled={weatherLoading || weatherHistory.length === 0}>Eliminar todo</button>
                 </div>
               </div>
               <table className="history-table">
@@ -593,6 +638,7 @@ export const AdminDashboard: FC = () => {
                 <div className="history-actions">
                   <label className="history-filter">Fecha <input type="date" value={historyDateFilter} onChange={(event) => setHistoryDateFilter(event.target.value)} /></label>
                   <button onClick={loadRiverHistory} disabled={riverLoading}>{riverLoading ? 'Cargando...' : 'Recargar'}</button>
+                  <button className="btn-danger-history" onClick={handleDeleteAllRiver} disabled={riverLoading || riverHistory.length === 0}>Eliminar todo</button>
                 </div>
               </div>
               <table className="history-table">
@@ -783,6 +829,7 @@ export const AdminDashboard: FC = () => {
                 <div className="history-actions">
                   <label className="history-filter">Fecha <input type="date" value={historyDateFilter} onChange={(event) => setHistoryDateFilter(event.target.value)} /></label>
                   <button onClick={loadPOMHistory} disabled={pomLoading}>{pomLoading ? 'Cargando...' : 'Recargar'}</button>
+                  <button className="btn-danger-history" onClick={handleDeleteAllPOM} disabled={pomLoading || pomHistory.length === 0}>Eliminar todo</button>
                 </div>
               </div>
               <table className="history-table">

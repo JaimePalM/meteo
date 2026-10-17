@@ -109,4 +109,14 @@ export class POMService {
       throw error;
     }
   }
+
+  async deleteAllPOMRecords(): Promise<number> {
+    try {
+      const result = await pool.query('DELETE FROM pom_data');
+      return result.rowCount ?? 0;
+    } catch (error) {
+      console.error('Error deleting all POM records:', error);
+      throw error;
+    }
+  }
 }
