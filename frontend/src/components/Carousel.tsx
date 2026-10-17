@@ -1,4 +1,4 @@
-import { FC, ReactNode, useState, useEffect } from 'react';
+import { CSSProperties, FC, ReactNode, useState, useEffect } from 'react';
 import { usePublicData } from '../context/PublicDataContext';
 
 interface CarouselProps {
@@ -40,7 +40,8 @@ export const Carousel: FC<CarouselProps> = ({
         {children.map((child, index) => (
           <div
             key={index}
-            className={`carousel-item ${index === currentIndex ? 'active' : ''}`}
+            className={`carousel-item ${index === currentIndex ? 'active' : ''} ${carousel.backgrounds[`panel-${index + 1}`] ? 'has-custom-background' : ''}`}
+            style={carousel.backgrounds[`panel-${index + 1}`] ? { '--slide-background': carousel.backgrounds[`panel-${index + 1}`] } as CSSProperties : undefined}
           >
             {child}
           </div>

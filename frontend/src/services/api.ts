@@ -100,6 +100,7 @@ export interface POMData {
 export interface CarouselSettings {
   intervalMs: number;
   showIndicators: boolean;
+  backgrounds: Record<string, string>;
   images: Array<{ panelId: string; version: number }>;
 }
 
@@ -159,6 +160,7 @@ export const adminApi = {
   updateCentinelas: (id: number, data: Partial<CentinelasData>) =>
     api.put<CentinelasData>(`/admin/centinelas/${id}`, data),
   deleteCentinelas: (id: number) => api.delete(`/admin/centinelas/${id}`),
+  deleteAllCentinelas: () => api.delete<{ deleted: number }>('/admin/centinelas'),
 
   getPOMHistory: () => api.get<POMData[]>('/admin/pom/history'),
   createPOM: (data: Omit<POMData, 'id' | 'created_at' | 'updated_at'>) =>
@@ -169,7 +171,7 @@ export const adminApi = {
 
   getCarouselImages: () => api.get<Array<{ panel_id: string; content_type: string; updated_at: string }>>('/admin/carousel/images'),
   getCarouselSettings: () => api.get<CarouselSettings>('/carousel/settings'),
-  updateCarouselSettings: (data: Pick<CarouselSettings, 'intervalMs' | 'showIndicators'>) =>
+  updateCarouselSettings: (data: Pick<CarouselSettings, 'intervalMs' | 'showIndicators' | 'backgrounds'>) =>
     api.put<CarouselSettings>('/admin/carousel/settings', data),
   uploadCarouselImage: (panelId: string, imageData: string, contentType: string) =>
     api.put(`/admin/carousel/images/${panelId}`, { imageData, contentType }),

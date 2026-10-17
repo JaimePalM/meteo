@@ -4,6 +4,23 @@ import { ensureCarouselStorage } from '../services/carouselService';
 
 const router = Router();
 
+const parseSlideBackgrounds = (rawValue: unknown): Record<string, string> => {
+  if (typeof rawValue !== 'string') return {};
+  try {
+    const parsed = JSON.parse(rawValue);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    const backgrounds: Record<string, string> = {};
+    for (const [panelId, color] of Object.entries(parsed)) {
+      if (/^panel-(?:[1-9]|1[0-9]|20)$/.test(panelId) && typeof color === 'string' && /^#[0-9a-fA-F]{6}$/.test(color)) {
+        backgrounds[panelId] = color;
+      }
+    }
+    return backgrounds;
+  } catch {
+    return {};
+  }
+};
+
 router.get('/settings', async (_req: Request, res: Response) => {
   try {
     await ensureCarouselStorage();
@@ -16,6 +33,7 @@ router.get('/settings', async (_req: Request, res: Response) => {
     res.json({
       intervalMs: Number.isFinite(intervalMs) && intervalMs >= 0 ? intervalMs : 10000,
       showIndicators: settings.show_indicators !== 'false',
+      backgrounds: parseSlideBackgrounds(settings.slide_backgrounds),
       images: imagesResult.rows.map((image) => ({ panelId: image.panel_id, version: new Date(image.updated_at).getTime() })),
     });
   } catch (error) {

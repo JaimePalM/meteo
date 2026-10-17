@@ -31,8 +31,7 @@ INSERT INTO centinelas_data (temperatura_agua, flora_invasora, residuos, efluent
 SELECT temperatura, flora, residuos, efluentes, mortandades, measured_on
 FROM academic_year,
   (VALUES
-    (14.6::numeric, 'Poca', 'Pocos', 'Ninguno', 'Ninguna', GREATEST(make_date((SELECT start_year FROM academic_year), 8, 1), CURRENT_DATE - 21)::date),
-    (17.3::numeric, 'Moderada', 'Pocos', 'Leves', 'Ninguna', CURRENT_DATE)
+    (14.6::numeric, 'Poca', 'Pocos', 'Ninguno', 'Ninguna', CURRENT_DATE)
   ) AS samples(temperatura, flora, residuos, efluentes, mortandades, measured_on);
 
 INSERT INTO pom_data (temperatura_mar, recorded_date)

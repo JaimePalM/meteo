@@ -81,7 +81,8 @@ CREATE TABLE IF NOT EXISTS carousel_settings (
 
 INSERT INTO carousel_settings (setting_key, setting_value) VALUES
     ('interval_ms', '10000'),
-    ('show_indicators', 'true')
+    ('show_indicators', 'true'),
+    ('slide_backgrounds', '{}')
 ON CONFLICT (setting_key) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS carousel_images (
@@ -130,8 +131,7 @@ INSERT INTO centinelas_data (temperatura_agua, flora_invasora, residuos, efluent
 SELECT temperatura, flora, residuos, efluentes, mortandades, measured_on
 FROM academic_year,
   (VALUES
-    (14.6::numeric, 'Poca', 'Pocos', 'Ninguno', 'Ninguna', GREATEST(make_date((SELECT start_year FROM academic_year), 8, 1), CURRENT_DATE - 21)::date),
-    (17.3::numeric, 'Moderada', 'Pocos', 'Leves', 'Ninguna', CURRENT_DATE)
+    (14.6::numeric, 'Poca', 'Pocos', 'Ninguno', 'Ninguna', CURRENT_DATE)
   ) AS samples(temperatura, flora, residuos, efluentes, mortandades, measured_on)
 ON CONFLICT DO NOTHING;
 

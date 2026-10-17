@@ -3,10 +3,10 @@ import { DataTimestamp } from '../../components/DataTimestamp';
 import { CentinelasData } from '../../services/api';
 import { usePublicData } from '../../context/PublicDataContext';
 
-const Observation: FC<{ item: CentinelasData; position: number }> = ({ item, position }) => (
+const Observation: FC<{ item: CentinelasData }> = ({ item }) => (
   <article className="centinelas-observation">
     <div className="centinelas-observation-header">
-      <h2>{position === 0 ? 'Primera observación' : 'Segunda observación'}</h2>
+      <h2>Observación del curso</h2>
       <span>{new Intl.DateTimeFormat('es-ES', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(item.recorded_date))}</span>
     </div>
     <div className="centinelas-observation-grid">
@@ -21,8 +21,7 @@ const Observation: FC<{ item: CentinelasData; position: number }> = ({ item, pos
 
 export const Panel13Dashboard: FC = () => {
   const { centinelas: { monthly, loading, error } } = usePublicData();
-  const observations = monthly.slice(0, 2);
-  const latestObservation = observations[observations.length - 1];
+  const observation = monthly[0];
 
   if (error) return <div className="public-display centinelas-display"><div className="display-error"><h1>Error al cargar datos</h1><p>{error}</p></div></div>;
 
@@ -31,13 +30,13 @@ export const Panel13Dashboard: FC = () => {
       <header className="panel-header">
         <img src="/logo-calasanz.png" alt="Logo Calasanz Santander" className="panel-logo" />
         <h1 className="panel-title">CENTINELAS</h1>
-        <DataTimestamp recordedDate={latestObservation?.recorded_date} />
+        <DataTimestamp recordedDate={observation?.recorded_date} />
       </header>
       <div className="panel-full-height-content">
         <section className="centinelas-observations">
           {loading && <div className="panel-loading">Cargando observaciones de Centinelas…</div>}
-          {!loading && observations.map((item, position) => <Observation key={item.id} item={item} position={position} />)}
-          {!loading && observations.length === 0 && <div className="panel-loading">No hay observaciones para el curso académico actual.</div>}
+          {!loading && observation && <Observation item={observation} />}
+          {!loading && !observation && <div className="panel-loading">No hay observación de Centinelas para el curso académico actual.</div>}
         </section>
       </div>
     </div>

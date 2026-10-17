@@ -13,6 +13,8 @@ const riverService = new RiverService();
 const centinelasService = new CentinelasService();
 const pomService = new POMService();
 const EDITABLE_IMAGE_PANELS = new Set(['panel-1', 'panel-6', 'panel-7', 'panel-8', 'panel-9', 'panel-10', 'panel-11', 'panel-12', 'panel-14', 'panel-15', 'panel-18', 'panel-20']);
+const BACKGROUND_PANEL_ID = /^panel-(?:[1-9]|1[0-9]|20)$/;
+const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 const isRiverCollectionDate = (recordedDate: string) => {
   const date = new Date(`${recordedDate}T00:00:00Z`);
@@ -237,7 +239,7 @@ router.post('/centinelas', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid temperatura_agua value' });
     }
     if (await centinelasService.hasReachedAcademicYearLimit(recorded_date)) {
-      return res.status(409).json({ error: 'Solo pueden existir dos observaciones de Centinelas por curso escolar.' });
+      return res.status(409).json({ error: 'Solo puede existir una observación de Centinelas por curso escolar.' });
     }
     const result = await centinelasService.createCentinelasRecord({ 
       temperatura_agua: temp, 
@@ -268,7 +270,7 @@ router.put('/centinelas/:id', async (req: Request, res: Response) => {
     if (mortandades) updateData.mortandades = mortandades;
 
     if (recorded_date && await centinelasService.hasReachedAcademicYearLimit(recorded_date, parseInt(id))) {
-      return res.status(409).json({ error: 'Solo pueden existir dos observaciones de Centinelas por curso escolar.' });
+      return res.status(409).json({ error: 'Solo puede existir una observación de Centinelas por curso escolar.' });
     }
 
     const result = await centinelasService.updateCentinelasRecord(parseInt(id), updateData);
@@ -290,6 +292,17 @@ router.delete('/centinelas/:id', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[ADMIN-CENTINELAS-DELETE] Error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE /api/admin/centinelas - Delete the complete Centinelas history.
+router.delete('/centinelas', async (_req: Request, res: Response) => {
+  try {
+    const deleted = await centinelasService.deleteAllCentinelasRecords();
+    res.json({ deleted, message: 'Histórico de Centinelas eliminado.' });
+  } catch (error) {
+    console.error('[ADMIN-CENTINELAS-DELETE-ALL] Error:', error);
+    res.status(500).json({ error: 'No se pudo eliminar el histórico de Centinelas.' });
   }
 });
 
@@ -384,16 +397,17 @@ router.put('/carousel/settings', async (req: Request, res: Response) => {
     await ensureCarouselStorage();
     const intervalMs = Number(req.body.intervalMs);
     const showIndicators = req.body.showIndicators;
-    if (!Number.isInteger(intervalMs) || intervalMs < 0 || intervalMs > 3_600_000 || typeof showIndicators !== 'boolean') {
+    const backgrounds = req.body.backgrounds ?? {};
+    if (!Number.isInteger(intervalMs) || intervalMs < 0 || intervalMs > 3_600_000 || typeof showIndicators !== 'boolean' || !backgrounds || typeof backgrounds !== 'object' || Array.isArray(backgrounds) || !Object.entries(backgrounds).every(([panelId, color]) => BACKGROUND_PANEL_ID.test(panelId) && typeof color === 'string' && HEX_COLOR.test(color))) {
       return res.status(400).json({ error: 'Configuración de carrusel inválida.' });
     }
     await pool.query(
       `INSERT INTO carousel_settings (setting_key, setting_value, updated_at) VALUES
-        ('interval_ms', $1, NOW()), ('show_indicators', $2, NOW())
+        ('interval_ms', $1, NOW()), ('show_indicators', $2, NOW()), ('slide_backgrounds', $3, NOW())
        ON CONFLICT (setting_key) DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = NOW()`,
-      [String(intervalMs), String(showIndicators)],
+      [String(intervalMs), String(showIndicators), JSON.stringify(backgrounds)],
     );
-    res.json({ intervalMs, showIndicators });
+    res.json({ intervalMs, showIndicators, backgrounds });
   } catch (error) {
     console.error('[ADMIN-CAROUSEL-SETTINGS] Error:', error);
     res.status(500).json({ error: 'Unable to save carousel settings' });

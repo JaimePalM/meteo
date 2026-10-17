@@ -27,7 +27,7 @@ export class CentinelasService {
        AND ($3::integer IS NULL OR id <> $3)`,
       [`${courseStartYear}-08-01`, `${courseStartYear + 1}-08-01`, excludeId ?? null],
     );
-    return result.rows[0].count >= 2;
+    return result.rows[0].count >= 1;
   }
   async getCurrentCentinelas(): Promise<CentinelasData | null> {
     try {
@@ -137,6 +137,16 @@ export class CentinelasService {
       return (result.rowCount ?? 0) > 0;
     } catch (error) {
       console.error('Error deleting centinelas record:', error);
+      throw error;
+    }
+  }
+
+  async deleteAllCentinelasRecords(): Promise<number> {
+    try {
+      const result = await pool.query('DELETE FROM centinelas_data');
+      return result.rowCount ?? 0;
+    } catch (error) {
+      console.error('Error deleting all centinelas records:', error);
       throw error;
     }
   }

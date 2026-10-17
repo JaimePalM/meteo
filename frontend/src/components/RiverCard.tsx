@@ -95,10 +95,6 @@ export const RiverCard: FC<RiverCardProps> = ({ data, loading }) => {
           <span className="river-info-label">Bosque de ribera</span>
           <span className="river-info-value">{data.bosque_rivera || 'Bueno'}</span>
         </div>
-        <div className="river-info-item">
-          <span className="river-info-label">Temperatura</span>
-          <span className="river-info-value">{temp.toFixed(2)}°C</span>
-        </div>
       </div>
     </div>
   );

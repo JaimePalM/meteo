@@ -20,7 +20,7 @@ export const PublicDataProvider: FC<{ children: ReactNode }> = ({ children }) =>
   const river = useRiverData();
   const centinelas = useCentinelasData();
   const pom = usePOMData();
-  const [carousel, setCarousel] = useState<CarouselSettings>({ intervalMs: 10000, showIndicators: true, images: [] });
+  const [carousel, setCarousel] = useState<CarouselSettings>({ intervalMs: 10000, showIndicators: true, backgrounds: {}, images: [] });
 
   useEffect(() => {
     const fetchCarouselSettings = async () => {

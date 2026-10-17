@@ -11,7 +11,7 @@ export const AdminDashboard: FC = () => {
   const [activeTab, setActiveTab] = useState<'weather' | 'river' | 'centinelas' | 'pom' | 'carousel'>('weather');
   const [historyDateFilter, setHistoryDateFilter] = useState('');
   const [notice, setNotice] = useState<string | null>(null);
-  const [carouselSettings, setCarouselSettings] = useState<CarouselSettings>({ intervalMs: 10000, showIndicators: true, images: [] });
+  const [carouselSettings, setCarouselSettings] = useState<CarouselSettings>({ intervalMs: 10000, showIndicators: true, backgrounds: {}, images: [] });
   const [carouselImages, setCarouselImages] = useState<Array<{ panel_id: string; content_type: string; updated_at: string }>>([]);
   const [carouselSaving, setCarouselSaving] = useState(false);
   const adminMainRef = useRef<HTMLElement>(null);
@@ -21,6 +21,11 @@ export const AdminDashboard: FC = () => {
     ['panel-9', '9 · Centinelas'], ['panel-10', '10 · Centinelas'], ['panel-11', '11 · Centinelas'], ['panel-12', '12 · Centinelas'],
     ['panel-14', '14 · POM'], ['panel-15', '15 · POM'], ['panel-18', '18 · Ríos'], ['panel-20', '20 · Ríos'],
   ] as const;
+  const slideLabels = [
+    '1 · Portada Meteoescuela', '2 · Logos meteorológicos', '3 · Datos meteorológicos', '4 · Gráfica de temperatura', '5 · Gráfica de precipitación',
+    '6 · Centinelas', '7 · Centinelas', '8 · Centinelas', '9 · Centinelas', '10 · Centinelas', '11 · Centinelas', '12 · Centinelas', '13 · Datos Centinelas',
+    '14 · POM', '15 · POM', '16 · Datos POM', '17 · Logos Ríos', '18 · Ríos', '19 · Datos Ríos', '20 · Ríos',
+  ];
 
   const notify = (message: string) => {
     setNotice(message);
@@ -105,18 +110,18 @@ export const AdminDashboard: FC = () => {
   const loadCarouselConfig = async () => {
     try {
       const [settings, images] = await Promise.all([adminApi.getCarouselSettings(), adminApi.getCarouselImages()]);
-      setCarouselSettings(settings.data);
+      setCarouselSettings({ ...settings.data, backgrounds: settings.data.backgrounds ?? {} });
       setCarouselImages(images.data);
     } catch (error: any) {
       alert(`Error al cargar la configuración del carrusel: ${error.response?.data?.error || error.message}`);
     }
   };
 
-  const saveCarouselSettings = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const saveCarouselSettings = async (event?: React.FormEvent) => {
+    event?.preventDefault();
     try {
       setCarouselSaving(true);
-      await adminApi.updateCarouselSettings({ intervalMs: carouselSettings.intervalMs, showIndicators: carouselSettings.showIndicators });
+      await adminApi.updateCarouselSettings({ intervalMs: carouselSettings.intervalMs, showIndicators: carouselSettings.showIndicators, backgrounds: carouselSettings.backgrounds });
       notify('Configuración del carrusel guardada. Se aplicará en el monitor en menos de 15 segundos.');
     } catch (error: any) {
       alert(error.response?.data?.error || 'No se pudo guardar la configuración del carrusel');
@@ -148,6 +153,15 @@ export const AdminDashboard: FC = () => {
     } catch (error: any) {
       alert(error.response?.data?.error || error.message || 'No se ha podido subir la imagen');
     }
+  };
+
+  const updateSlideBackground = (panelId: string, color: string) => {
+    setCarouselSettings({ ...carouselSettings, backgrounds: { ...carouselSettings.backgrounds, [panelId]: color } });
+  };
+
+  const resetSlideBackground = (panelId: string) => {
+    const { [panelId]: _removed, ...backgrounds } = carouselSettings.backgrounds;
+    setCarouselSettings({ ...carouselSettings, backgrounds });
   };
 
   // ─── Weather handlers ─────────────────────────────────────────────────────
@@ -308,6 +322,23 @@ export const AdminDashboard: FC = () => {
     if (!confirm('¿Eliminar este registro de Centinelas?')) return;
     try { await adminApi.deleteCentinelas(id); notify('Registro de Centinelas eliminado.'); loadCentinelasHistory(); }
     catch { alert('Error al eliminar el registro'); }
+  };
+
+  const handleDeleteAllCentinelas = async () => {
+    if (!window.confirm('Se eliminarán todos los registros de Centinelas. Esta acción no se puede deshacer. ¿Quieres continuar?')) return;
+    if (window.prompt('Segunda confirmación: escribe BORRAR para eliminar todo el histórico de Centinelas.') !== 'BORRAR') {
+      alert('El histórico no se ha eliminado.');
+      return;
+    }
+    try {
+      const response = await adminApi.deleteAllCentinelas();
+      setCentinelasHistory([]);
+      setShowCentinelasForm(false);
+      setCentinelasEditingId(null);
+      notify(`Se han eliminado ${response.data.deleted} registros de Centinelas.`);
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'No se ha podido eliminar el histórico de Centinelas.');
+    }
   };
 
   // ─── POM handlers ─────────────────────────────────────────────────────────
@@ -613,7 +644,7 @@ export const AdminDashboard: FC = () => {
               {showCentinelasForm && (
                 <form onSubmit={handleCentinelasSubmit} className="weather-form">
                   <h2>{centinelasEditingId ? 'Editar Registro' : 'Nuevo Registro Centinelas'}</h2>
-                  <p className="form-help">Cada curso escolar admite hasta dos observaciones de Centinelas.</p>
+                  <p className="form-help">Cada curso escolar admite una única observación de Centinelas.</p>
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="c-date">Fecha</label>
@@ -671,6 +702,7 @@ export const AdminDashboard: FC = () => {
                 <div className="history-actions">
                   <label className="history-filter">Fecha <input type="date" value={historyDateFilter} onChange={(event) => setHistoryDateFilter(event.target.value)} /></label>
                   <button onClick={loadCentinelasHistory} disabled={centinelasLoading}>{centinelasLoading ? 'Cargando...' : 'Recargar'}</button>
+                  <button className="btn-danger-history" onClick={handleDeleteAllCentinelas} disabled={centinelasLoading || centinelasHistory.length === 0}>Eliminar todo</button>
                 </div>
               </div>
               <table className="history-table">
@@ -820,6 +852,26 @@ export const AdminDashboard: FC = () => {
                   </label>;
                 })}
               </div>
+            </section>
+
+            <section className="admin-history-section">
+              <div className="history-header"><div><h2>Color de fondo por diapositiva</h2><p className="form-help">El color se aplica al fondo completo de la diapositiva. Restablecer conserva el diseño original.</p></div></div>
+              <div className="slide-background-list">
+                {slideLabels.map((label, index) => {
+                  const panelId = `panel-${index + 1}`;
+                  const color = carouselSettings.backgrounds[panelId] ?? '#ffffff';
+                  const configured = Boolean(carouselSettings.backgrounds[panelId]);
+                  return <div key={panelId} className="slide-background-item">
+                    <label htmlFor={`background-${panelId}`}>{label}</label>
+                    <div className="slide-background-actions">
+                      <input id={`background-${panelId}`} type="color" value={color} onChange={(event) => updateSlideBackground(panelId, event.target.value)} aria-label={`Color de fondo para ${label}`} />
+                      <span>{configured ? color.toUpperCase() : 'Original'}</span>
+                      <button type="button" onClick={() => resetSlideBackground(panelId)} disabled={!configured}>Restablecer</button>
+                    </div>
+                  </div>;
+                })}
+              </div>
+              <button type="button" className="btn-primary" onClick={() => saveCarouselSettings()} disabled={carouselSaving}>{carouselSaving ? 'Guardando…' : 'Guardar colores de fondo'}</button>
             </section>
           </>
         )}

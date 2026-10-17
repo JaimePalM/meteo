@@ -21,7 +21,7 @@ export const ensureCarouselStorage = (): Promise<void> => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`);
       await pool.query(`INSERT INTO carousel_settings (setting_key, setting_value) VALUES
-        ('interval_ms', '10000'), ('show_indicators', 'true')
+        ('interval_ms', '10000'), ('show_indicators', 'true'), ('slide_backgrounds', '{}')
         ON CONFLICT (setting_key) DO NOTHING`);
     })().catch((error) => {
       initialization = undefined;
