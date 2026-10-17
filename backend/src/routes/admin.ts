@@ -5,6 +5,7 @@ import { CentinelasService } from '../services/centinelasService';
 import { POMService } from '../services/pomService';
 import authMiddleware from '../middleware/auth';
 import pool from '../models/database';
+import { ensureCarouselStorage } from '../services/carouselService';
 
 const router = Router();
 const weatherService = new WeatherService();
@@ -369,6 +370,7 @@ router.delete('/pom/:id', async (req: Request, res: Response) => {
 
 router.get('/carousel/images', async (_req: Request, res: Response) => {
   try {
+    await ensureCarouselStorage();
     const result = await pool.query('SELECT panel_id, content_type, updated_at FROM carousel_images ORDER BY panel_id');
     res.json(result.rows);
   } catch (error) {
@@ -379,6 +381,7 @@ router.get('/carousel/images', async (_req: Request, res: Response) => {
 
 router.put('/carousel/settings', async (req: Request, res: Response) => {
   try {
+    await ensureCarouselStorage();
     const intervalMs = Number(req.body.intervalMs);
     const showIndicators = req.body.showIndicators;
     if (!Number.isInteger(intervalMs) || intervalMs < 0 || intervalMs > 3_600_000 || typeof showIndicators !== 'boolean') {
@@ -399,6 +402,7 @@ router.put('/carousel/settings', async (req: Request, res: Response) => {
 
 router.put('/carousel/images/:panelId', async (req: Request, res: Response) => {
   try {
+    await ensureCarouselStorage();
     const { panelId } = req.params;
     const { imageData, contentType } = req.body;
     if (!EDITABLE_IMAGE_PANELS.has(panelId)) return res.status(400).json({ error: 'Esta diapositiva no admite una imagen editable.' });

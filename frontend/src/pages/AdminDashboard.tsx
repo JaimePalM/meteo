@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { adminApi, CarouselSettings, WeatherData, RiverData, CentinelasData, POMData } from '../services/api';
 
@@ -14,6 +14,7 @@ export const AdminDashboard: FC = () => {
   const [carouselSettings, setCarouselSettings] = useState<CarouselSettings>({ intervalMs: 10000, showIndicators: true, images: [] });
   const [carouselImages, setCarouselImages] = useState<Array<{ panel_id: string; content_type: string; updated_at: string }>>([]);
   const [carouselSaving, setCarouselSaving] = useState(false);
+  const adminMainRef = useRef<HTMLElement>(null);
 
   const editableSlides = [
     ['panel-1', '1 · Logo Meteoescuela'], ['panel-6', '6 · Centinelas'], ['panel-7', '7 · Centinelas'], ['panel-8', '8 · Centinelas'],
@@ -93,6 +94,13 @@ export const AdminDashboard: FC = () => {
     loadPOMHistory();
     loadCarouselConfig();
   }, []);
+
+  useEffect(() => {
+    if (!weatherEditingId && !riverEditingId && !centinelasEditingId && !pomEditingId) return;
+    window.requestAnimationFrame(() => {
+      adminMainRef.current?.querySelector('.weather-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, [weatherEditingId, riverEditingId, centinelasEditingId, pomEditingId]);
 
   const loadCarouselConfig = async () => {
     try {
@@ -390,7 +398,7 @@ export const AdminDashboard: FC = () => {
         </button>
       </div>
 
-      <main className="admin-main">
+      <main className="admin-main" ref={adminMainRef}>
         {notice && <div className="admin-notice" role="status">{notice}</div>}
 
         {/* ─── Weather Tab ─────────────────────────────────────────────── */}

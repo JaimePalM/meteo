@@ -1552,12 +1552,16 @@
 }
 
 .centinelas-data-panel .centered-card {
-  min-height: min(72vh, 700px);
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .centinelas-data-panel .weather-card {
   height: 100%;
+  min-height: 0;
   padding: clamp(24px, 3vw, 48px);
+  overflow: hidden;
 }
 
 .centinelas-data-panel .weather-card h2 {
@@ -1566,11 +1570,18 @@
 
 .centinelas-data-panel .full-width-grid {
   height: 100%;
+  min-height: 0;
+  padding: clamp(12px, 2vw, 28px);
   align-items: stretch;
 }
 
 .centinelas-data-panel .centinelas-item {
+  min-width: 0;
   padding: clamp(18px, 2vw, 30px);
+}
+
+.admin-form-section {
+  scroll-margin-top: 20px;
 }
 
 .centinelas-data-panel .centinelas-emoji {

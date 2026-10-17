@@ -1,10 +1,12 @@
 import { Router, Request, Response } from 'express';
 import pool from '../models/database';
+import { ensureCarouselStorage } from '../services/carouselService';
 
 const router = Router();
 
 router.get('/settings', async (_req: Request, res: Response) => {
   try {
+    await ensureCarouselStorage();
     const [settingsResult, imagesResult] = await Promise.all([
       pool.query('SELECT setting_key, setting_value FROM carousel_settings'),
       pool.query('SELECT panel_id, updated_at FROM carousel_images'),
@@ -24,6 +26,7 @@ router.get('/settings', async (_req: Request, res: Response) => {
 
 router.get('/images/:panelId', async (req: Request, res: Response) => {
   try {
+    await ensureCarouselStorage();
     const panelId = req.params.panelId;
     if (!/^[a-z0-9-]+$/.test(panelId)) return res.status(400).json({ error: 'Invalid panel id' });
 
