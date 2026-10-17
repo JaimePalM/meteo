@@ -1414,7 +1414,8 @@
 .panel-full-height {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -1429,7 +1430,7 @@
   justify-content: center;
   width: 100%;
   max-width: 1920px;
-  padding: 0 24px;
+  padding: 0 clamp(10px, 2vw, 24px);
   overflow: hidden;
 }
 
@@ -1439,13 +1440,25 @@
   margin: 0 auto;
 }
 
+.meteoescuela-display.panel-full-height {
+  box-sizing: border-box;
+  min-height: 0;
+}
+
 .meteoescuela-display .centered-card {
-  min-height: min(72vh, 700px);
+  height: 100%;
+  min-height: 0;
+  display: flex;
 }
 
 .meteoescuela-display .centered-card .weather-card {
   height: 100%;
-  padding: clamp(24px, 3vw, 48px);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: clamp(12px, 2.5vw, 38px);
+  overflow: hidden;
 }
 
 .meteoescuela-display .centered-card .weather-card h2 {
@@ -1453,12 +1466,17 @@
 }
 
 .meteoescuela-display .centered-card .weather-grid.modern {
-  gap: clamp(16px, 2vw, 30px);
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: clamp(8px, 1.5vw, 22px);
 }
 
 .meteoescuela-display .centered-card .weather-item {
-  min-height: 130px;
-  padding: clamp(18px, 2vw, 30px);
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(10px, 1.8vw, 24px);
 }
 
 .meteoescuela-display .centered-card .weather-item .item-emoji {
@@ -1466,11 +1484,69 @@
 }
 
 .meteoescuela-display .centered-card .weather-item .label {
-  font-size: 13px;
+  font-size: clamp(10px, 1vw, 13px);
 }
 
 .meteoescuela-display .centered-card .weather-item .value {
-  font-size: clamp(30px, 3.5vw, 52px);
+  font-size: clamp(20px, 3vw, 46px);
+}
+
+.meteoescuela-display .centered-card .item-content {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .meteoescuela-display .centered-card .weather-grid.modern {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-height: 700px) {
+  .panel-header {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .panel-logo {
+    height: clamp(36px, 7vh, 54px);
+  }
+
+  .panel-title {
+    font-size: clamp(20px, 4vh, 30px);
+  }
+
+  .meteoescuela-display .centered-card .weather-header {
+    margin-bottom: 6px;
+  }
+
+  .meteoescuela-display .centered-card .weather-card h2 {
+    font-size: clamp(20px, 4vh, 28px);
+  }
+
+  .meteoescuela-display .centered-card .weather-grid.modern {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .meteoescuela-display .centered-card .weather-item {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .meteoescuela-display .centered-card .weather-item .item-emoji {
+    font-size: clamp(22px, 6vh, 38px);
+    min-width: 26px;
+  }
+
+  .meteoescuela-display .centered-card .weather-item .value {
+    font-size: clamp(18px, 5vh, 32px);
+  }
+}
+
+@media (max-width: 720px) and (max-height: 700px) {
+  .meteoescuela-display .centered-card .weather-grid.modern {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 1600px) {
@@ -1795,48 +1871,151 @@
   line-height: 1;
 }
 
+.river-data-panel {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  gap: clamp(6px, 1vw, 16px);
+  overflow: hidden;
+}
+
 .river-data-panel .river-cards-grid {
   width: min(1600px, 100%);
-  flex: 1;
+  height: 100%;
+  flex: 1 1 0;
   min-height: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  gap: clamp(8px, 1vw, 16px);
   align-items: stretch;
 }
 
 .river-data-panel .river-cards-grid > .dashboard-section {
+  display: flex;
+  min-width: 0;
   min-height: 0;
+  padding: clamp(8px, 1vw, 16px);
+  overflow: hidden;
+}
+
+.river-data-panel .river-cards-grid .weather-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(8px, 1.2vw, 18px);
+  overflow: hidden;
+}
+
+.river-data-panel .weather-header {
+  margin-bottom: clamp(3px, 0.7vh, 8px);
+}
+
+.river-data-panel .weather-card h2 {
+  font-size: clamp(16px, min(1.7vw, 3.5vh), 28px);
+}
+
+.river-data-panel .weather-header p {
+  font-size: clamp(9px, min(0.85vw, 1.8vh), 13px);
+  overflow-wrap: anywhere;
+}
+
+.river-data-panel .river-main-temp {
+  flex: 0 1 auto;
+  padding: clamp(2px, 1.2vh, 14px) 0;
+  gap: clamp(2px, 0.6vh, 8px);
+}
+
+.river-data-panel .river-temp-display {
+  min-width: 0;
+  gap: clamp(5px, 1vw, 16px);
+}
+
+.river-data-panel .river-emoji {
+  font-size: clamp(30px, min(4vw, 8vh), 64px);
+}
+
+.river-data-panel .river-temp-value {
+  font-size: clamp(30px, min(4.5vw, 9vh), 72px);
+  letter-spacing: clamp(-2px, -0.15vw, -1px);
+  white-space: nowrap;
+}
+
+.river-data-panel .river-status {
+  font-size: clamp(12px, min(1.4vw, 3vh), 22px);
+  letter-spacing: clamp(0.5px, 0.12vw, 2px);
 }
 
 .river-data-panel .river-info-grid {
-  gap: clamp(14px, 1.2vw, 22px);
-  padding: 0 clamp(8px, 1vw, 18px);
+  flex: 1 1 0;
+  min-height: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(6px, 0.9vw, 14px);
+  padding: 0;
 }
 
 .river-data-panel .river-info-item {
-  min-height: clamp(94px, 10vw, 142px);
+  min-width: 0;
+  min-height: 0;
   justify-content: center;
-  padding: clamp(16px, 1.7vw, 26px);
+  padding: clamp(6px, 1.1vw, 16px);
+  overflow: hidden;
+  text-align: center;
 }
 
 .river-data-panel .river-info-item:last-child {
   grid-column: 1 / -1;
-  width: calc(50% - clamp(7px, 0.6vw, 11px));
+  width: calc(50% - clamp(3px, 0.45vw, 7px));
   justify-self: center;
 }
 
+.river-data-panel .river-info-label,
+.river-data-panel .river-info-value {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 .river-data-panel .river-info-label {
-  font-size: clamp(12px, 1vw, 16px);
+  font-size: clamp(9px, min(0.95vw, 2vh), 15px);
 }
 
 .river-data-panel .river-info-value {
-  font-size: clamp(22px, 2vw, 32px);
+  font-size: clamp(16px, min(1.8vw, 3.8vh), 30px);
+  line-height: 1.1;
 }
 
 .river-data-panel .river-logos-bottom {
-  padding: 8px 18px 12px;
+  flex: 0 0 auto;
+  padding: clamp(3px, 0.8vh, 8px) clamp(8px, 1.2vw, 18px) clamp(5px, 1vh, 12px);
 }
 
 .river-data-panel .river-logo-bottom {
-  height: clamp(64px, 7vw, 110px);
+  height: clamp(34px, min(5vw, 8vh), 86px);
+}
+
+@media (max-width: 560px) {
+  .river-data-panel .river-cards-grid {
+    gap: 6px;
+  }
+
+  .river-data-panel .river-cards-grid > .dashboard-section {
+    padding: 5px;
+  }
+
+  .river-data-panel .river-cards-grid .weather-card {
+    padding: 7px;
+  }
+
+  .river-data-panel .river-temp-display {
+    gap: 3px;
+  }
+
+  .river-data-panel .river-info-grid {
+    gap: 5px;
+  }
 }
 
 .slide-background-list {
