@@ -1,4 +1,5 @@
 import { FC, ReactNode, useState, useEffect } from 'react';
+import { usePublicData } from '../context/PublicDataContext';
 
 interface CarouselProps {
   children: ReactNode[];
@@ -13,17 +14,21 @@ export const Carousel: FC<CarouselProps> = ({
   autoPlay = true,
   panelNames = []
 }) => {
+  const { carousel } = usePublicData();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const effectiveInterval = carousel.intervalMs ?? interval;
+  const isAutoPlayEnabled = autoPlay && effectiveInterval > 0;
+  const shouldShowIndicators = carousel.showIndicators || effectiveInterval === 0;
 
   useEffect(() => {
-    if (!autoPlay) return;
+    if (!isAutoPlayEnabled) return;
     
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % children.length);
-    }, interval);
+    }, effectiveInterval);
 
     return () => clearInterval(timer);
-  }, [children.length, interval, autoPlay]);
+  }, [children.length, effectiveInterval, isAutoPlayEnabled]);
 
   const getPanelName = (index: number) => {
     return panelNames[index] || `Panel ${index + 1}`;
@@ -41,7 +46,7 @@ export const Carousel: FC<CarouselProps> = ({
           </div>
         ))}
       </div>
-      <div className="carousel-indicators">
+      {shouldShowIndicators && <div className="carousel-indicators">
         {children.map((_, index) => (
           <button
             key={index}
@@ -54,6 +59,7 @@ export const Carousel: FC<CarouselProps> = ({
           </button>
         ))}
       </div>
+      }
     </div>
   );
 };

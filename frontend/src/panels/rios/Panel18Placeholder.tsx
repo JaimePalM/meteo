@@ -7,6 +7,7 @@ export const Panel18Placeholder: FC = () => {
       src="/rios-18.png" 
       alt="Ríos - Panel 18"
       className="rios-panel"
+      panelId="panel-18"
     />
   );
 };

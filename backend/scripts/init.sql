@@ -71,6 +71,26 @@ CREATE TABLE IF NOT EXISTS pom_data (
 -- Create index for pom_data date queries
 CREATE INDEX idx_pom_recorded_date ON pom_data(recorded_date DESC);
 
+-- Carousel configuration and user-replaceable images. Image bytes are kept in the
+-- database so an upload survives container recreation without an extra volume.
+CREATE TABLE IF NOT EXISTS carousel_settings (
+    setting_key VARCHAR(80) PRIMARY KEY,
+    setting_value TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO carousel_settings (setting_key, setting_value) VALUES
+    ('interval_ms', '10000'),
+    ('show_indicators', 'true')
+ON CONFLICT (setting_key) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS carousel_images (
+    panel_id VARCHAR(40) PRIMARY KEY,
+    content_type VARCHAR(50) NOT NULL,
+    image_data TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Insert default admin user (username: admin, password: admin123)
 -- Password hash for 'admin123' using bcrypt (rounds: 10)
 INSERT INTO admin_users (username, password_hash)

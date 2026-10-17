@@ -97,6 +97,12 @@ export interface POMData {
   updated_at?: string;
 }
 
+export interface CarouselSettings {
+  intervalMs: number;
+  showIndicators: boolean;
+  images: Array<{ panelId: string; version: number }>;
+}
+
 // Public endpoints
 export const weatherApi = {
   getCurrentWeather: () => api.get<WeatherData>('/weather/current'),
@@ -116,6 +122,10 @@ export const centinelasApi = {
 export const pomApi = {
   getCurrent: () => api.get<POMData>('/pom/current'),
   getMonthlyHistory: () => api.get<POMData[]>('/pom/monthly'),
+};
+
+export const carouselApi = {
+  getSettings: () => api.get<CarouselSettings>('/carousel/settings'),
 };
 
 // Auth endpoints
@@ -156,4 +166,11 @@ export const adminApi = {
   updatePOM: (id: number, data: Partial<POMData>) =>
     api.put<POMData>(`/admin/pom/${id}`, data),
   deletePOM: (id: number) => api.delete(`/admin/pom/${id}`),
+
+  getCarouselImages: () => api.get<Array<{ panel_id: string; content_type: string; updated_at: string }>>('/admin/carousel/images'),
+  getCarouselSettings: () => api.get<CarouselSettings>('/carousel/settings'),
+  updateCarouselSettings: (data: Pick<CarouselSettings, 'intervalMs' | 'showIndicators'>) =>
+    api.put<CarouselSettings>('/admin/carousel/settings', data),
+  uploadCarouselImage: (panelId: string, imageData: string, contentType: string) =>
+    api.put(`/admin/carousel/images/${panelId}`, { imageData, contentType }),
 };

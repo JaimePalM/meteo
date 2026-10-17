@@ -28,7 +28,7 @@ export const useCentinelasData = () => {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 30000);
+    const interval = setInterval(fetchData, 15_000);
     return () => clearInterval(interval);
   }, []);
 

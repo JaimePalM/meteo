@@ -6,6 +6,7 @@ import adminRoutes from './routes/admin';
 import riverRoutes from './routes/river';
 import centinelasRoutes from './routes/centinelas';
 import pomRoutes from './routes/pom';
+import carouselRoutes from './routes/carousel';
 
 const app: Express = express();
 
@@ -26,7 +27,7 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: '12mb' }));
 
 // Request logging
 app.use((req: Request, res: Response, next) => {
@@ -46,6 +47,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/river', riverRoutes);
 app.use('/api/centinelas', centinelasRoutes);
 app.use('/api/pom', pomRoutes);
+app.use('/api/carousel', carouselRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

@@ -16,6 +16,23 @@ const ESTADO_RIO_OPTIONS = ['Muy bueno', 'Bueno', 'Regular', 'Deficiente'];
 const BOSQUE_RIVERA_OPTIONS = ['Muy bueno', 'Bueno', 'Regular', 'Deficiente'];
 
 export class RiverService {
+  async hasRecordForCourseSlot(recordedDate: string, excludeId?: number): Promise<boolean> {
+    const date = new Date(`${recordedDate}T00:00:00Z`);
+    const month = date.getUTCMonth();
+    const courseStartYear = month >= 8 ? date.getUTCFullYear() : date.getUTCFullYear() - 1;
+    const courseStart = `${courseStartYear}-08-01`;
+    const courseEnd = `${courseStartYear + 1}-08-01`;
+
+    const result = await pool.query(
+      `SELECT 1 FROM river_data
+       WHERE recorded_date >= $1::date AND recorded_date < $2::date
+       AND EXTRACT(MONTH FROM recorded_date) = $3
+       AND ($4::integer IS NULL OR id <> $4)
+       LIMIT 1`,
+      [courseStart, courseEnd, month + 1, excludeId ?? null],
+    );
+    return (result.rowCount ?? 0) > 0;
+  }
   async getCurrentRiver(): Promise<RiverData | null> {
     try {
       const result = await pool.query(

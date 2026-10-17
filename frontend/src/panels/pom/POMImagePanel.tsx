@@ -11,6 +11,7 @@ export const POMImagePanel: FC<POMImagePanelProps> = ({ panelNum }) => {
       src={`/pom-${panelNum}.jpg`} 
       alt={`POM - Panel ${panelNum}`}
       className="pom-panel"
+      panelId={`panel-${panelNum}`}
     />
   );
 };

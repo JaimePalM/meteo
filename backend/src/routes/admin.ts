@@ -4,12 +4,19 @@ import { RiverService } from '../services/riverService';
 import { CentinelasService } from '../services/centinelasService';
 import { POMService } from '../services/pomService';
 import authMiddleware from '../middleware/auth';
+import pool from '../models/database';
 
 const router = Router();
 const weatherService = new WeatherService();
 const riverService = new RiverService();
 const centinelasService = new CentinelasService();
 const pomService = new POMService();
+const EDITABLE_IMAGE_PANELS = new Set(['panel-1', 'panel-6', 'panel-7', 'panel-8', 'panel-9', 'panel-10', 'panel-11', 'panel-12', 'panel-14', 'panel-15', 'panel-18', 'panel-20']);
+
+const isRiverCollectionDate = (recordedDate: string) => {
+  const date = new Date(`${recordedDate}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && [4, 9].includes(date.getUTCMonth());
+};
 
 // Protect all admin routes with auth middleware
 router.use((req, res, next) => {
@@ -141,6 +148,12 @@ router.post('/river', async (req: Request, res: Response) => {
     if (isNaN(temp)) {
       return res.status(400).json({ error: 'Invalid temperature value' });
     }
+    if (!isRiverCollectionDate(recorded_date)) {
+      return res.status(400).json({ error: 'Los datos de río solo se pueden registrar en mayo u octubre.' });
+    }
+    if (await riverService.hasRecordForCourseSlot(recorded_date)) {
+      return res.status(409).json({ error: 'Ya existe una medición para ese periodo del curso escolar.' });
+    }
     const result = await riverService.createRiverRecord({ 
       temperature: temp, 
       recorded_date,
@@ -166,6 +179,15 @@ router.put('/river/:id', async (req: Request, res: Response) => {
     if (calidad_biologica) updateData.calidad_biologica = calidad_biologica;
     if (estado_rio) updateData.estado_rio = estado_rio;
     if (bosque_rivera) updateData.bosque_rivera = bosque_rivera;
+
+    if (recorded_date) {
+      if (!isRiverCollectionDate(recorded_date)) {
+        return res.status(400).json({ error: 'Los datos de río solo se pueden registrar en mayo u octubre.' });
+      }
+      if (await riverService.hasRecordForCourseSlot(recorded_date, parseInt(id))) {
+        return res.status(409).json({ error: 'Ya existe una medición para ese periodo del curso escolar.' });
+      }
+    }
 
     const result = await riverService.updateRiverRecord(parseInt(id), updateData);
     if (!result) return res.status(404).json({ error: 'River record not found' });
@@ -213,6 +235,9 @@ router.post('/centinelas', async (req: Request, res: Response) => {
     if (isNaN(temp)) {
       return res.status(400).json({ error: 'Invalid temperatura_agua value' });
     }
+    if (await centinelasService.hasRecordForAcademicYear(recorded_date)) {
+      return res.status(409).json({ error: 'Solo puede existir una observación de Centinelas por curso escolar.' });
+    }
     const result = await centinelasService.createCentinelasRecord({ 
       temperatura_agua: temp, 
       recorded_date,
@@ -240,6 +265,10 @@ router.put('/centinelas/:id', async (req: Request, res: Response) => {
     if (residuos) updateData.residuos = residuos;
     if (efluentes) updateData.efluentes = efluentes;
     if (mortandades) updateData.mortandades = mortandades;
+
+    if (recorded_date && await centinelasService.hasRecordForAcademicYear(recorded_date, parseInt(id))) {
+      return res.status(409).json({ error: 'Solo puede existir una observación de Centinelas por curso escolar.' });
+    }
 
     const result = await centinelasService.updateCentinelasRecord(parseInt(id), updateData);
     if (!result) return res.status(404).json({ error: 'Centinelas record not found' });
@@ -287,6 +316,9 @@ router.post('/pom', async (req: Request, res: Response) => {
     if (isNaN(temp)) {
       return res.status(400).json({ error: 'Invalid temperatura_mar value' });
     }
+    if (await pomService.hasRecordForMonth(recorded_date)) {
+      return res.status(409).json({ error: 'Solo puede existir una temperatura del mar por mes.' });
+    }
     const result = await pomService.createPOMRecord({ 
       temperatura_mar: temp, 
       recorded_date
@@ -307,6 +339,10 @@ router.put('/pom/:id', async (req: Request, res: Response) => {
     if (temperatura_mar !== undefined && temperatura_mar !== '') updateData.temperatura_mar = parseFloat(temperatura_mar);
     if (recorded_date) updateData.recorded_date = recorded_date;
 
+    if (recorded_date && await pomService.hasRecordForMonth(recorded_date, parseInt(id))) {
+      return res.status(409).json({ error: 'Solo puede existir una temperatura del mar por mes.' });
+    }
+
     const result = await pomService.updatePOMRecord(parseInt(id), updateData);
     if (!result) return res.status(404).json({ error: 'POM record not found' });
     res.json(result);
@@ -326,6 +362,62 @@ router.delete('/pom/:id', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[ADMIN-POM-DELETE] Error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── Carousel configuration and image administration ───────────────────────
+
+router.get('/carousel/images', async (_req: Request, res: Response) => {
+  try {
+    const result = await pool.query('SELECT panel_id, content_type, updated_at FROM carousel_images ORDER BY panel_id');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('[ADMIN-CAROUSEL-IMAGES] Error:', error);
+    res.status(500).json({ error: 'Unable to load carousel images' });
+  }
+});
+
+router.put('/carousel/settings', async (req: Request, res: Response) => {
+  try {
+    const intervalMs = Number(req.body.intervalMs);
+    const showIndicators = req.body.showIndicators;
+    if (!Number.isInteger(intervalMs) || intervalMs < 0 || intervalMs > 3_600_000 || typeof showIndicators !== 'boolean') {
+      return res.status(400).json({ error: 'Configuración de carrusel inválida.' });
+    }
+    await pool.query(
+      `INSERT INTO carousel_settings (setting_key, setting_value, updated_at) VALUES
+        ('interval_ms', $1, NOW()), ('show_indicators', $2, NOW())
+       ON CONFLICT (setting_key) DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = NOW()`,
+      [String(intervalMs), String(showIndicators)],
+    );
+    res.json({ intervalMs, showIndicators });
+  } catch (error) {
+    console.error('[ADMIN-CAROUSEL-SETTINGS] Error:', error);
+    res.status(500).json({ error: 'Unable to save carousel settings' });
+  }
+});
+
+router.put('/carousel/images/:panelId', async (req: Request, res: Response) => {
+  try {
+    const { panelId } = req.params;
+    const { imageData, contentType } = req.body;
+    if (!EDITABLE_IMAGE_PANELS.has(panelId)) return res.status(400).json({ error: 'Esta diapositiva no admite una imagen editable.' });
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(contentType) || typeof imageData !== 'string' || !/^[A-Za-z0-9+/=]+$/.test(imageData)) {
+      return res.status(400).json({ error: 'Formato de imagen no válido. Usa JPEG, PNG o WebP.' });
+    }
+    if (Buffer.byteLength(imageData, 'base64') > 8 * 1024 * 1024) {
+      return res.status(413).json({ error: 'La imagen no puede superar 8 MB.' });
+    }
+    await pool.query(
+      `INSERT INTO carousel_images (panel_id, content_type, image_data, updated_at)
+       VALUES ($1, $2, $3, NOW())
+       ON CONFLICT (panel_id) DO UPDATE SET content_type = EXCLUDED.content_type, image_data = EXCLUDED.image_data, updated_at = NOW()`,
+      [panelId, contentType, imageData],
+    );
+    res.json({ panelId, contentType });
+  } catch (error) {
+    console.error('[ADMIN-CAROUSEL-UPLOAD] Error:', error);
+    res.status(500).json({ error: 'Unable to save carousel image' });
   }
 });
 

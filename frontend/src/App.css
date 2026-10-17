@@ -1362,8 +1362,42 @@
 
 .centered-card {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1680px;
   margin: 0 auto;
+}
+
+.meteoescuela-display .centered-card {
+  min-height: min(72vh, 700px);
+}
+
+.meteoescuela-display .centered-card .weather-card {
+  height: 100%;
+  padding: clamp(24px, 3vw, 48px);
+}
+
+.meteoescuela-display .centered-card .weather-card h2 {
+  font-size: clamp(28px, 3vw, 42px);
+}
+
+.meteoescuela-display .centered-card .weather-grid.modern {
+  gap: clamp(16px, 2vw, 30px);
+}
+
+.meteoescuela-display .centered-card .weather-item {
+  min-height: 130px;
+  padding: clamp(18px, 2vw, 30px);
+}
+
+.meteoescuela-display .centered-card .weather-item .item-emoji {
+  font-size: clamp(36px, 4vw, 58px);
+}
+
+.meteoescuela-display .centered-card .weather-item .label {
+  font-size: 13px;
+}
+
+.meteoescuela-display .centered-card .weather-item .value {
+  font-size: clamp(30px, 3.5vw, 52px);
 }
 
 @media (min-width: 1600px) {
@@ -1515,6 +1549,159 @@
   flex: 1;
   min-height: 0;
   height: 100%;
+}
+
+.centinelas-data-panel .centered-card {
+  min-height: min(72vh, 700px);
+}
+
+.centinelas-data-panel .weather-card {
+  height: 100%;
+  padding: clamp(24px, 3vw, 48px);
+}
+
+.centinelas-data-panel .weather-card h2 {
+  font-size: clamp(28px, 3vw, 42px);
+}
+
+.centinelas-data-panel .full-width-grid {
+  height: 100%;
+  align-items: stretch;
+}
+
+.centinelas-data-panel .centinelas-item {
+  padding: clamp(18px, 2vw, 30px);
+}
+
+.centinelas-data-panel .centinelas-emoji {
+  font-size: clamp(40px, 4vw, 58px);
+}
+
+.centinelas-data-panel .centinelas-label {
+  font-size: 13px;
+}
+
+.centinelas-data-panel .centinelas-value {
+  font-size: clamp(24px, 2.5vw, 38px);
+}
+
+.panel-loading,
+.display-error {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 160px;
+  color: white;
+  text-align: center;
+}
+
+.pom-data-panel .panel-split-top {
+  flex: 0 0 30%;
+}
+
+.pom-data-panel .panel-split-bottom {
+  flex: 1;
+}
+
+.pom-latest-card {
+  width: min(760px, 100%);
+  padding: clamp(20px, 3vw, 38px);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 12px 28px rgba(7, 61, 22, 0.2);
+  color: white;
+  text-align: center;
+}
+
+.pom-latest-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.82;
+}
+
+.pom-latest-value {
+  display: block;
+  margin-top: 8px;
+  font-size: clamp(48px, 7vw, 92px);
+  line-height: 1;
+}
+
+.river-data-panel .river-cards-grid {
+  width: min(1600px, 100%);
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.river-data-panel .river-cards-grid > .dashboard-section {
+  min-height: 0;
+}
+
+.form-help {
+  display: block;
+  margin-top: 5px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.carousel-settings-form h2 {
+  margin-bottom: 2px;
+}
+
+.toggle-field {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.toggle-field input {
+  width: 18px;
+  height: 18px;
+}
+
+.carousel-image-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.carousel-image-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #dbe3e8;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #273746;
+  cursor: pointer;
+}
+
+.carousel-image-item span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.carousel-image-item small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.carousel-image-item input {
+  width: 110px;
+  min-width: 0;
+  padding: 4px;
+  font-size: 11px;
 }
 
 /* POM 12-month grid */

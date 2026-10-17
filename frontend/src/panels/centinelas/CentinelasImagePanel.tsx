@@ -11,6 +11,7 @@ export const CentinelasImagePanel: FC<CentinelasImagePanelProps> = ({ panelNum }
       src={`/centinelas-${panelNum}.jpg`} 
       alt={`Centinelas - Panel ${panelNum}`}
       className="centinelas-panel"
+      panelId={`panel-${panelNum}`}
     />
   );
 };

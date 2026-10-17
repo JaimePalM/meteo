@@ -11,8 +11,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/scripts/init.sql:/docker-entrypoint-initdb.d/01-init.sql
-    ports:
-      - "5432:5432"
+    # PostgreSQL is only consumed by the backend through the Compose network.
+    # Keeping it private avoids colliding with a local PostgreSQL installation.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U meteo_user -d meteo_db"]
       interval: 10s

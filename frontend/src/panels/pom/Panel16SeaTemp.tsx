@@ -78,7 +78,7 @@ export const Panel16SeaTemp: FC = () => {
   }));
 
   return (
-    <div className="public-display pom-display panel-split-horizontal">
+    <div className="public-display pom-display panel-split-horizontal pom-data-panel">
       <header className="panel-header">
         <img 
           src="/logo-calasanz.png" 
@@ -90,48 +90,18 @@ export const Panel16SeaTemp: FC = () => {
       </header>
 
       <div className="panel-split-content">
-        {/* Top half: 12 months in 6x2 grid */}
         <div className="panel-split-top">
-          <div className="dashboard-section conditions full-width-dashboard">
-            <div className="weather-card">
-              <div className="weather-header">
-                <h2>🌊 Temperatura del Mar - Últimos 12 Meses</h2>
-              </div>
-              <div className="pom-grid-12">
-                {monthlyData.map((item) => {
-                  const measurementDate = new Date(item.recorded_date);
-                  const today = new Date();
-                  const isCurrentMonth = measurementDate.getUTCFullYear() === today.getFullYear()
-                    && measurementDate.getUTCMonth() === today.getMonth();
-
-                  return (
-                  <div key={item.id} className={`pom-month-item ${isCurrentMonth ? 'current-month' : ''}`} aria-current={isCurrentMonth ? 'date' : undefined}>
-                    <span className="pom-month-label">
-                      {new Date(item.recorded_date).toLocaleDateString('es-ES', {
-                        month: 'short',
-                        year: '2-digit',
-                      })}
-                    </span>
-                    <span className="pom-month-value">
-                      {typeof item.temperatura_mar === 'string' ? parseFloat(item.temperatura_mar) : item.temperatura_mar}°C
-                    </span>
-                  </div>
-                  );
-                })}
-                {monthlyData.length === 0 && (
-                  <div className="pom-empty" style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'rgba(255,255,255,0.7)' }}>
-                    No hay datos disponibles
-                  </div>
-                )}
-              </div>
-            </div>
+          <div className="pom-latest-card">
+            <span className="pom-latest-label">Última temperatura del mar</span>
+            <strong className="pom-latest-value">
+              {monthlyData.length > 0 ? `${Number(monthlyData[monthlyData.length - 1].temperatura_mar).toFixed(1)} °C` : '—'}
+            </strong>
           </div>
         </div>
 
-        {/* Bottom half: Chart with 12 points */}
         <div className="panel-split-bottom">
           <div className="dashboard-section chart">
-            <h3>📈 Evolución Temperatura Mar (12 meses)</h3>
+            <h3>Evolución de la temperatura del mar · últimos 12 meses</h3>
             <div className="chart-container full-width-chart">
               <SimpleLineChart data={chartData} color="#278145" yAxisLabel="°C" />
             </div>

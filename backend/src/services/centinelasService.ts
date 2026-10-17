@@ -18,6 +18,18 @@ const EFLUENTES_OPTIONS = ['Ninguno', 'Leves', 'Moderados', 'Severos'];
 const MORTANDADES_OPTIONS = ['Ninguna', 'Baja', 'Media', 'Alta'];
 
 export class CentinelasService {
+  async hasRecordForAcademicYear(recordedDate: string, excludeId?: number): Promise<boolean> {
+    const date = new Date(`${recordedDate}T00:00:00Z`);
+    const courseStartYear = date.getUTCMonth() >= 7 ? date.getUTCFullYear() : date.getUTCFullYear() - 1;
+    const result = await pool.query(
+      `SELECT 1 FROM centinelas_data
+       WHERE recorded_date >= $1::date AND recorded_date < $2::date
+       AND ($3::integer IS NULL OR id <> $3)
+       LIMIT 1`,
+      [`${courseStartYear}-08-01`, `${courseStartYear + 1}-08-01`, excludeId ?? null],
+    );
+    return (result.rowCount ?? 0) > 0;
+  }
   async getCurrentCentinelas(): Promise<CentinelasData | null> {
     try {
       const result = await pool.query(

@@ -9,6 +9,16 @@ interface POMData {
 }
 
 export class POMService {
+  async hasRecordForMonth(recordedDate: string, excludeId?: number): Promise<boolean> {
+    const result = await pool.query(
+      `SELECT 1 FROM pom_data
+       WHERE date_trunc('month', recorded_date) = date_trunc('month', $1::date)
+       AND ($2::integer IS NULL OR id <> $2)
+       LIMIT 1`,
+      [recordedDate, excludeId ?? null],
+    );
+    return (result.rowCount ?? 0) > 0;
+  }
   async getCurrentPOM(): Promise<POMData | null> {
     try {
       const result = await pool.query(

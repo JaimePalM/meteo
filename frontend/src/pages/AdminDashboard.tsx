@@ -1,6 +1,6 @@
 import { FC, useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { adminApi, WeatherData, RiverData, CentinelasData, POMData } from '../services/api';
+import { adminApi, CarouselSettings, WeatherData, RiverData, CentinelasData, POMData } from '../services/api';
 
 function filterByDate<T extends { recorded_date: string }>(records: T[], date: string): T[] {
   return date ? records.filter((record) => record.recorded_date.slice(0, 10) === date) : records;
@@ -8,9 +8,18 @@ function filterByDate<T extends { recorded_date: string }>(records: T[], date: s
 
 export const AdminDashboard: FC = () => {
   const { logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'weather' | 'river' | 'centinelas' | 'pom'>('weather');
+  const [activeTab, setActiveTab] = useState<'weather' | 'river' | 'centinelas' | 'pom' | 'carousel'>('weather');
   const [historyDateFilter, setHistoryDateFilter] = useState('');
   const [notice, setNotice] = useState<string | null>(null);
+  const [carouselSettings, setCarouselSettings] = useState<CarouselSettings>({ intervalMs: 10000, showIndicators: true, images: [] });
+  const [carouselImages, setCarouselImages] = useState<Array<{ panel_id: string; content_type: string; updated_at: string }>>([]);
+  const [carouselSaving, setCarouselSaving] = useState(false);
+
+  const editableSlides = [
+    ['panel-1', '1 · Logo Meteoescuela'], ['panel-6', '6 · Centinelas'], ['panel-7', '7 · Centinelas'], ['panel-8', '8 · Centinelas'],
+    ['panel-9', '9 · Centinelas'], ['panel-10', '10 · Centinelas'], ['panel-11', '11 · Centinelas'], ['panel-12', '12 · Centinelas'],
+    ['panel-14', '14 · POM'], ['panel-15', '15 · POM'], ['panel-18', '18 · Ríos'], ['panel-20', '20 · Ríos'],
+  ] as const;
 
   const notify = (message: string) => {
     setNotice(message);
@@ -82,7 +91,56 @@ export const AdminDashboard: FC = () => {
     loadRiverHistory();
     loadCentinelasHistory();
     loadPOMHistory();
+    loadCarouselConfig();
   }, []);
+
+  const loadCarouselConfig = async () => {
+    try {
+      const [settings, images] = await Promise.all([adminApi.getCarouselSettings(), adminApi.getCarouselImages()]);
+      setCarouselSettings(settings.data);
+      setCarouselImages(images.data);
+    } catch (error: any) {
+      alert(`Error al cargar la configuración del carrusel: ${error.response?.data?.error || error.message}`);
+    }
+  };
+
+  const saveCarouselSettings = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      setCarouselSaving(true);
+      await adminApi.updateCarouselSettings({ intervalMs: carouselSettings.intervalMs, showIndicators: carouselSettings.showIndicators });
+      notify('Configuración del carrusel guardada. Se aplicará en el monitor en menos de 15 segundos.');
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'No se pudo guardar la configuración del carrusel');
+    } finally {
+      setCarouselSaving(false);
+    }
+  };
+
+  const uploadCarouselImage = async (panelId: string, file?: File) => {
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      alert('Selecciona una imagen JPEG, PNG o WebP.');
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      alert('La imagen no puede superar 8 MB.');
+      return;
+    }
+    try {
+      const imageData = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(',')[1]);
+        reader.onerror = () => reject(new Error('No se ha podido leer la imagen'));
+        reader.readAsDataURL(file);
+      });
+      await adminApi.uploadCarouselImage(panelId, imageData, file.type);
+      notify('Imagen actualizada. Se verá en el monitor en menos de 15 segundos.');
+      loadCarouselConfig();
+    } catch (error: any) {
+      alert(error.response?.data?.error || error.message || 'No se ha podido subir la imagen');
+    }
+  };
 
   // ─── Weather handlers ─────────────────────────────────────────────────────
   const loadWeatherHistory = async () => {
@@ -166,6 +224,10 @@ export const AdminDashboard: FC = () => {
       recorded_date: riverFormData.recorded_date,
     };
     if (isNaN(data.temperature)) { alert('Temperatura inválida'); return; }
+    if (![5, 10].includes(Number(riverFormData.recorded_date.slice(5, 7)))) {
+      alert('Los datos de río solo se registran en mayo u octubre.');
+      return;
+    }
     try {
       if (riverEditingId) {
         await adminApi.updateRiver(riverEditingId, data);
@@ -323,6 +385,9 @@ export const AdminDashboard: FC = () => {
         >
           📋 POM
         </button>
+        <button className={`admin-tab ${activeTab === 'carousel' ? 'active' : ''}`} onClick={() => setActiveTab('carousel')}>
+          🖼️ Carrusel
+        </button>
       </div>
 
       <main className="admin-main">
@@ -413,7 +478,7 @@ export const AdminDashboard: FC = () => {
                             humidity: item.humidity.toString(),
                             pressure: item.pressure.toString(),
                             precipitation: item.precipitation.toString(),
-                            recorded_date: item.recorded_date,
+                            recorded_date: item.recorded_date.slice(0, 10),
                           });
                           setShowWeatherForm(true);
                         }}>Editar</button>
@@ -440,6 +505,7 @@ export const AdminDashboard: FC = () => {
               {showRiverForm && (
                 <form onSubmit={handleRiverSubmit} className="weather-form">
                   <h2>{riverEditingId ? 'Editar Registro' : 'Nuevo Registro Río'}</h2>
+                  <p className="form-help">Cada curso escolar admite una medición en mayo y otra en octubre.</p>
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="r-date">Fecha</label>
@@ -493,7 +559,7 @@ export const AdminDashboard: FC = () => {
               <table className="history-table">
                 <thead>
                   <tr>
-                    <th>Fecha</th><th>Temperatura del Agua</th><th>Acciones</th>
+                    <th>Fecha</th><th>Temperatura</th><th>Calidad biológica</th><th>Estado del río</th><th>Bosque de ribera</th><th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -501,6 +567,9 @@ export const AdminDashboard: FC = () => {
                     <tr key={item.id}>
                       <td>{new Date(item.recorded_date).toLocaleDateString('es-ES')}</td>
                       <td>{parseFloat(item.temperature as unknown as string).toFixed(2)}°C</td>
+                      <td>{item.calidad_biologica || 'Buena'}</td>
+                      <td>{item.estado_rio || 'Bueno'}</td>
+                      <td>{item.bosque_rivera || 'Bueno'}</td>
                       <td>
                         <button className="btn-small" onClick={() => {
                           setRiverEditingId(item.id);
@@ -509,7 +578,7 @@ export const AdminDashboard: FC = () => {
                             calidad_biologica: item.calidad_biologica || 'Buena',
                             estado_rio: item.estado_rio || 'Bueno',
                             bosque_rivera: item.bosque_rivera || 'Bueno',
-                            recorded_date: item.recorded_date,
+                            recorded_date: item.recorded_date.slice(0, 10),
                           });
                           setShowRiverForm(true);
                         }}>Editar</button>
@@ -517,7 +586,7 @@ export const AdminDashboard: FC = () => {
                       </td>
                     </tr>
                   )) : (
-                    <tr><td colSpan={3} style={{ textAlign: 'center', padding: '20px' }}>No hay datos disponibles</td></tr>
+                    <tr><td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>No hay datos disponibles</td></tr>
                   )}
                 </tbody>
               </table>
@@ -536,6 +605,7 @@ export const AdminDashboard: FC = () => {
               {showCentinelasForm && (
                 <form onSubmit={handleCentinelasSubmit} className="weather-form">
                   <h2>{centinelasEditingId ? 'Editar Registro' : 'Nuevo Registro Centinelas'}</h2>
+                  <p className="form-help">Solo se admite una observación de Centinelas por curso escolar.</p>
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="c-date">Fecha</label>
@@ -620,7 +690,7 @@ export const AdminDashboard: FC = () => {
                             residuos: item.residuos,
                             efluentes: item.efluentes,
                             mortandades: item.mortandades,
-                            recorded_date: item.recorded_date,
+                            recorded_date: item.recorded_date.slice(0, 10),
                           });
                           setShowCentinelasForm(true);
                         }}>Editar</button>
@@ -647,6 +717,7 @@ export const AdminDashboard: FC = () => {
               {showPOMForm && (
                 <form onSubmit={handlePOMSubmit} className="weather-form">
                   <h2>{pomEditingId ? 'Editar Registro' : 'Nuevo Registro POM'}</h2>
+                  <p className="form-help">Solo se admite una temperatura del mar por cada mes.</p>
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="p-date">Fecha</label>
@@ -690,7 +761,7 @@ export const AdminDashboard: FC = () => {
                           setPOMEditingId(item.id);
                           setPOMFormData({
                             temperatura_mar: item.temperatura_mar.toString(),
-                            recorded_date: item.recorded_date,
+                            recorded_date: item.recorded_date.slice(0, 10),
                           });
                           setShowPOMForm(true);
                         }}>Editar</button>
@@ -702,6 +773,45 @@ export const AdminDashboard: FC = () => {
                   )}
                 </tbody>
               </table>
+            </section>
+          </>
+        )}
+
+        {activeTab === 'carousel' && (
+          <>
+            <section className="admin-form-section">
+              <form onSubmit={saveCarouselSettings} className="carousel-settings-form">
+                <div>
+                  <h2>Comportamiento del carrusel</h2>
+                  <p className="form-help">El cambio se aplicará automáticamente en las pantallas abiertas en menos de 15 segundos.</p>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="carousel-interval">Intervalo entre diapositivas (segundos)</label>
+                    <input id="carousel-interval" type="number" min="0" max="3600" step="1" value={carouselSettings.intervalMs / 1000}
+                      onChange={(event) => setCarouselSettings({ ...carouselSettings, intervalMs: Math.max(0, Number(event.target.value) * 1000) })} />
+                    <span className="form-help">Usa 0 para desactivar el avance automático.</span>
+                  </div>
+                  <label className="toggle-field"><input type="checkbox" checked={carouselSettings.intervalMs === 0 || carouselSettings.showIndicators}
+                    disabled={carouselSettings.intervalMs === 0}
+                    onChange={(event) => setCarouselSettings({ ...carouselSettings, showIndicators: event.target.checked })} /> Mostrar los botones de diapositiva
+                    {carouselSettings.intervalMs === 0 && <small>Obligatorios cuando no hay avance automático.</small>}</label>
+                </div>
+                <button type="submit" className="btn-primary" disabled={carouselSaving}>{carouselSaving ? 'Guardando…' : 'Guardar configuración'}</button>
+              </form>
+            </section>
+
+            <section className="admin-history-section">
+              <div className="history-header"><div><h2>Imágenes de diapositivas</h2><p className="form-help">Solo se muestran las diapositivas que contienen una única imagen. JPEG, PNG o WebP hasta 8 MB.</p></div></div>
+              <div className="carousel-image-list">
+                {editableSlides.map(([panelId, label]) => {
+                  const image = carouselImages.find((item) => item.panel_id === panelId);
+                  return <label key={panelId} className="carousel-image-item">
+                    <span><strong>{label}</strong><small>{image ? `Personalizada · ${new Date(image.updated_at).toLocaleDateString('es-ES')}` : 'Imagen predeterminada'}</small></span>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => uploadCarouselImage(panelId, event.target.files?.[0])} />
+                  </label>;
+                })}
+              </div>
             </section>
           </>
         )}

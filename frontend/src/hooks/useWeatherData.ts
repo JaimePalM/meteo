@@ -43,8 +43,8 @@ export const useWeatherData = () => {
 
     fetchData();
     
-    // Refresh every 5 minutes
-    const interval = setInterval(fetchData, 5 * 60 * 1000);
+    // The display runs unattended; poll so newly entered data appears without reloading.
+    const interval = setInterval(fetchData, 15_000);
     return () => clearInterval(interval);
   }, []);
 

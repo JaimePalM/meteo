@@ -7,6 +7,7 @@ export const Panel1Logo: FC = () => {
       src="/logo-calasanz.png" 
       alt="Meteoescuela - Logo Calasanz"
       className="meteoescuela-panel"
+      panelId="panel-1"
     />
   );
 };
